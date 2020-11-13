@@ -83,6 +83,7 @@ const App = () => {
   const getImage = async (launcherAsync) => {
     const result = await launcherAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
     });
 
     if (result.cancelled) {
@@ -171,6 +172,7 @@ const App = () => {
       <ScreenView
         style={[{ backgroundColor: colors.background }, styles.container]}
       >
+        <StatusBar barStyle="auto" />
         <ScrollView
           style={{
             width: "100%",
@@ -183,8 +185,6 @@ const App = () => {
             flexDirection: "column",
           }}
         >
-          <StatusBar barStyle="auto" />
-
           <View style={{ flexDirection: "row", marginVertical: 2 }}>
             {imageUri && <ImageWithModal uri={imageUri} />}
             {receivedImage && (

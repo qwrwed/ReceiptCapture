@@ -9,7 +9,6 @@ import {
   Animated,
   Pressable,
   Platform,
-  StyleSheet,
   View,
   Image,
   Modal,
@@ -26,6 +25,8 @@ import {
 } from "react-native-paper";
 import { RFValue } from "react-native-responsive-fontsize";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { styles } from "./src/styles";
 
 const SERVER_ADDRESS = "http://192.168.0.2";
 const SERVER_PORT = "5000";
@@ -339,34 +340,5 @@ const App = () => {
     </PaperProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-end",
-    paddingHorizontal: 10,
-  },
-  button: {
-    alignSelf: "stretch",
-    height: RFValue(60),
-    width: "100%",
-    marginVertical: 2,
-  },
-  buttonContent: {
-    height: "100%",
-  },
-  buttonLabel: {
-    fontSize: RFValue(21),
-  },
-  text: {
-    fontSize: RFValue(20),
-  },
-  textMono: {
-    fontSize: RFValue(18),
-    // textAlign: 'center',
-    fontFamily: "monospace",
-  },
-});
 
 export default App;

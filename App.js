@@ -3,7 +3,7 @@
 // TODO: args
 
 import * as ImagePicker from "expo-image-picker";
-import { setStatusBarHidden, StatusBar } from "expo-status-bar";
+import { setStatusBarHidden } from "expo-status-bar";
 import React, { useRef, useState, useEffect } from "react";
 import {
   Animated,
@@ -26,6 +26,7 @@ import {
 import { RFValue } from "react-native-responsive-fontsize";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import StatusBar from "./src/components/ESLintCompatibleStatusBar";
 import { styles } from "./src/styles";
 
 const SERVER_ADDRESS = "http://192.168.0.2";
@@ -35,9 +36,6 @@ const SERVER_ADDRESS_FULL =
   SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
 
 // prevent ESLint from simply crashing on style="auto"
-const ESLintCompatibleStatusBar = (props) => {
-  return <StatusBar style={props.barStyle} />;
-};
 
 const ImageWithModal = (props) => {
   const [showModal, setShowModal] = useState(false);
@@ -261,7 +259,7 @@ const App = () => {
             flexDirection: "column",
           }}
         >
-          <ESLintCompatibleStatusBar barStyle="auto" />
+          <StatusBar barStyle="auto" />
 
           <View style={{ flexDirection: "row", marginVertical: 2 }}>
             {imageUri && <ImageWithModal uri={imageUri} />}

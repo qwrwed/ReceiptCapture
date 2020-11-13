@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Pressable, View, Image, Modal } from "react-native";
 import ImageViewer from "react-native-image-zoom-viewer";
 
-export default (props) => {
+export const ImageWithModal = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [actualSize, setActualSize] = useState({ width: 0, height: 0 });
 

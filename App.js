@@ -17,10 +17,10 @@ import {
   Text,
 } from "react-native-paper";
 import { RFValue } from "react-native-responsive-fontsize";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-import StatusBar from "./src/components/ESLintCompatibleStatusBar";
-import ImageWithModal from "./src/components/ImageWithModal";
+import { ESLintCompatibleStatusBar as StatusBar } from "./src/components/ESLintCompatibleStatusBar";
+import { ImageWithModal } from "./src/components/ImageWithModal";
+import { ScreenView } from "./src/components/ScreenView";
 import { styles } from "./src/styles";
 import { fadeInThenOut } from "./src/utils";
 
@@ -29,18 +29,6 @@ const SERVER_PORT = "5000";
 
 const SERVER_ADDRESS_FULL =
   SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
-
-const ScreenView = (props) => {
-  if (Platform.OS === "web") {
-    return <View style={props.style}>{props.children}</View>;
-  } else {
-    return (
-      <SafeAreaView style={props.style} edges={["right", "left", "top"]}>
-        {props.children}
-      </SafeAreaView>
-    );
-  }
-};
 
 const App = () => {
   const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;

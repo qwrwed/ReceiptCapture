@@ -4,7 +4,7 @@
 
 import { setStatusBarHidden, StatusBar } from 'expo-status-bar';
 import React, { useRef, useState, useEffect } from 'react';
-import { Animated, Pressable, Platform, StyleSheet, View, Image, Modal } from 'react-native';
+import { Animated, Pressable, Platform, StyleSheet, View, Image, Modal, ScrollView } from 'react-native';
 import { DarkTheme, DefaultTheme, Provider as PaperProvider, Button, Text, TextInput } from 'react-native-paper';
 import { useColorScheme } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -38,7 +38,6 @@ const ImageWithModal = (props) => {
         visible={showModal}
         transparent={true}
         statusBarTranslucent={true}
-        style={{backgroundColor:'#F00'}}
         onRequestClose={() => {
           setShowModal(false)
           setStatusBarHidden(false)
@@ -144,7 +143,7 @@ const App = () => {
     }
     setLoadingUpload(true)
     const controller = new AbortController();
-    const timeout = 10; // seconds
+    const timeout = 60; // seconds
     setTimeout(() => controller.abort(), timeout * 1000);
     try {
       var response = await fetch(urlRoot + '\\upload', {
@@ -179,6 +178,8 @@ const App = () => {
       }
     } catch (err) {
       let errorMessage
+      console.log("Error:")
+      console.log(err)
       if (typeof (err.status) !== "undefined") {
         errorMessage = `${err.status} ${err.message}`
       }
@@ -190,8 +191,7 @@ const App = () => {
       }
       else {
         errorMessage = "unknown error"
-        console.log("Unknown error:")
-        console.log(err)
+        console.log("Error was unknown")
       }
       if (receivedInfo === errorMessage) {
         setLoadingUpload(false)
@@ -203,40 +203,64 @@ const App = () => {
 
   return (
     <PaperProvider theme={theme}>
-      <SafeAreaView style={[{ backgroundColor: colors.background }, styles.container]}>
-        <StatusBar style="auto" />
-        <View style={{ flexDirection: 'row', marginVertical: 2 }}>
-          {imageUri && <ImageWithModal uri={imageUri} />}
-          {receivedImage && <ImageWithModal uri={`data:image/gif;base64,${receivedImage}`} />}
-        </View>
-        <Animated.View style={{ backgroundColor: infoBackground, marginVertical: 2, }}>
-          <Text style={styles.text}>Received info:</Text>
-          <Text style={styles.textMono}>{JSON.stringify(receivedInfo)}</Text>
-        </Animated.View>
-        <Button style={styles.button} contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel}
-          icon="camera" mode="contained" onPress={takeImage}>
-          Take Photo
-        </Button>
-        <Button style={styles.button} contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel}
-          icon="folder-image" mode="contained" onPress={pickImage}>
-          Select Image
-        </Button>
-        <Button style={styles.button} contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel}
-          loading={loadingUpload}
-          disabled={formData === null}
-          icon="upload" mode="contained" onPress={() => {
-            uploadImage(formData, SERVER_ADDRESS_FULL)
+      <SafeAreaView edges={['right', 'left', 'top']} style={[{ backgroundColor: colors.background }, styles.container]}>
+        <ScrollView
+          style={{
+            width: "100%",
+            //flexDirection: 'column-reverse'
+          }}
+          contentContainerStyle={{
+            //flexDirection: 'column-reverse'
+            flexGrow: 1,
+            justifyContent: 'flex-end',
+            flexDirection: "column"
+          }}
+        >
+          <StatusBar style="auto" />
+
+          <View style={{ flexDirection: 'row', marginVertical: 2 }}>
+            {imageUri && <ImageWithModal uri={imageUri} />}
+            {receivedImage && <ImageWithModal uri={`data:image/gif;base64,${receivedImage}`} />}
+          </View>
+
+          <Animated.View style={{ backgroundColor: infoBackground, marginVertical: 2, }}>
+            <Text style={styles.text}>Received info:</Text>
+            <Text style={styles.textMono}>{
+              receivedInfo
+            }</Text>
+          </Animated.View>
+
+          <View style={{
+            //flex: 1, justifyContent: 'flex-end',
           }}>
-          Upload Image
+            <Button style={styles.button} contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel}
+              icon="camera" mode="contained" onPress={takeImage}>
+              Take Photo
         </Button>
-        <Button style={styles.button} contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel}
-          icon="eraser" mode="contained" onPress={() => {
-            setImageUri(null);
-            setFormData(null)
-            setReceivedImage(null);
-          }}>
-          Clear
+            <Button style={styles.button} contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel}
+              icon="folder-image" mode="contained" onPress={pickImage}>
+              Select Image
         </Button>
+            <Button style={styles.button} contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel}
+              loading={loadingUpload}
+              disabled={formData === null || loadingUpload}
+              icon="upload" mode="contained" onPress={() => {
+                uploadImage(formData, SERVER_ADDRESS_FULL)
+              }}>
+              Upload Image
+        </Button>
+            <Button style={styles.button} contentStyle={styles.buttonContent} labelStyle={styles.buttonLabel}
+              icon="eraser" mode="contained" onPress={() => {
+                setImageUri(null);
+                setFormData(null);
+                setReceivedImage(null);
+                setReceivedInfo("");
+              }}>
+              Clear
+        </Button>
+            <View style={{ height: RFValue(60) }}></View>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </PaperProvider>
   );
@@ -246,12 +270,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     paddingHorizontal: 10,
   },
   button: {
     alignSelf: 'stretch',
-    height: '10%',
+    height: RFValue(60),
+    width: '100%',
     marginVertical: 2,
   },
   buttonContent: {
@@ -265,7 +290,7 @@ const styles = StyleSheet.create({
   },
   textMono: {
     fontSize: RFValue(18),
-    textAlign: 'center',
+    //textAlign: 'center',
     fontFamily: 'monospace',
   },
 });

@@ -1,5 +1,3 @@
-// TODO: reimport pipeline serverside
-// TODO: cleanup
 // TODO: args
 
 import * as ImagePicker from "expo-image-picker";
@@ -24,6 +22,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import StatusBar from "./src/components/ESLintCompatibleStatusBar";
 import ImageWithModal from "./src/components/ImageWithModal";
 import { styles } from "./src/styles";
+import { fadeInThenOut } from "./src/utils";
 
 const SERVER_ADDRESS = "http://192.168.0.2";
 const SERVER_PORT = "5000";
@@ -31,7 +30,17 @@ const SERVER_PORT = "5000";
 const SERVER_ADDRESS_FULL =
   SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
 
-// prevent ESLint from simply crashing on style="auto"
+const ScreenView = (props) => {
+  if (Platform.OS === "web") {
+    return <View style={props.style}>{props.children}</View>;
+  } else {
+    return (
+      <SafeAreaView style={props.style} edges={["right", "left", "top"]}>
+        {props.children}
+      </SafeAreaView>
+    );
+  }
+};
 
 const App = () => {
   const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;
@@ -49,26 +58,6 @@ const App = () => {
     inputRange: [0, 1],
     outputRange: [colors.background, colors.primary],
   });
-
-  const fadeTo = (animatedValue, toValue, duration, callback) => {
-    Animated.timing(animatedValue, {
-      toValue,
-      duration,
-      useNativeDriver: false,
-    }).start(callback);
-  };
-
-  const fadeInThenOut = (
-    animatedValue,
-    min = 0,
-    max = 1,
-    inTime = 1000,
-    outTime = 1000
-  ) => {
-    fadeTo(animatedValue, max, inTime, () =>
-      fadeTo(animatedValue, min, outTime)
-    );
-  };
 
   useEffect(() => {
     (async () => {
@@ -191,8 +180,7 @@ const App = () => {
 
   return (
     <PaperProvider theme={theme}>
-      <SafeAreaView
-        edges={["right", "left", "top"]}
+      <ScreenView
         style={[{ backgroundColor: colors.background }, styles.container]}
       >
         <ScrollView
@@ -262,7 +250,7 @@ const App = () => {
                 uploadImage(formData, SERVER_ADDRESS_FULL);
               }}
             >
-              Upload Image
+              Submit Image
             </Button>
             <Button
               style={styles.button}
@@ -282,7 +270,7 @@ const App = () => {
             <View style={{ height: RFValue(60) }} />
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </ScreenView>
     </PaperProvider>
   );
 };

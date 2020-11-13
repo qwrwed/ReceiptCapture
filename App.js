@@ -2,7 +2,7 @@
 //TODO: cleanup
 //TODO: args
 
-import { StatusBar } from 'expo-status-bar';
+import { setStatusBarHidden, StatusBar } from 'expo-status-bar';
 import React, { useRef, useState, useEffect } from 'react';
 import { Animated, Pressable, Platform, StyleSheet, View, Image, Modal } from 'react-native';
 import { DarkTheme, DefaultTheme, Provider as PaperProvider, Button, Text, TextInput } from 'react-native-paper';
@@ -31,13 +31,18 @@ const ImageWithModal = (props) => {
   return (
     <View>
       {/*<Text>{JSON.stringify(actualSize)}</Text>*/}
-      <Pressable onPress={() => { setShowModal(true) }}>
+      <Pressable onPress={() => { setStatusBarHidden(true); setShowModal(true) }}>
         <Image source={{ uri: props.uri }} style={{ width: 200, height: 200 }} />
       </Pressable>
       <Modal
         visible={showModal}
         transparent={true}
-        onRequestClose={() => setShowModal(false)}
+        statusBarTranslucent={true}
+        style={{backgroundColor:'#F00'}}
+        onRequestClose={() => {
+          setShowModal(false)
+          setStatusBarHidden(false)
+        }}
       >
         <ImageViewer imageUrls={[
           {
@@ -63,6 +68,7 @@ const App = () => {
   const [receivedImage, setReceivedImage] = useState(null)
   const [formData, setFormData] = useState(null)
   const [loadingUpload, setLoadingUpload] = useState(false)
+  const [dontFlash, setDontFlash] = useState(true)
 
   const animatedValueInfoBackground = useRef(new Animated.Value(0)).current;
   const infoBackground = animatedValueInfoBackground.interpolate({
@@ -98,7 +104,9 @@ const App = () => {
   }, [receivedInfo, receivedImage]);
 
   useEffect(() => {
-    if (loadingUpload === false) {
+    if (dontFlash) {
+      setDontFlash(false)
+    } else if (loadingUpload === false) {
       fadeInThenOut(animatedValueInfoBackground, 0, 0.7, 100, 2000)
     }
   }, [loadingUpload]);

@@ -3,19 +3,14 @@
 // TODO: args
 
 import * as ImagePicker from "expo-image-picker";
-import { setStatusBarHidden } from "expo-status-bar";
 import React, { useRef, useState, useEffect } from "react";
 import {
   Animated,
-  Pressable,
   Platform,
   View,
-  Image,
-  Modal,
   ScrollView,
   useColorScheme,
 } from "react-native";
-import ImageViewer from "react-native-image-zoom-viewer";
 import {
   DarkTheme,
   DefaultTheme,
@@ -27,6 +22,7 @@ import { RFValue } from "react-native-responsive-fontsize";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import StatusBar from "./src/components/ESLintCompatibleStatusBar";
+import ImageWithModal from "./src/components/ImageWithModal";
 import { styles } from "./src/styles";
 
 const SERVER_ADDRESS = "http://192.168.0.2";
@@ -36,54 +32,6 @@ const SERVER_ADDRESS_FULL =
   SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
 
 // prevent ESLint from simply crashing on style="auto"
-
-const ImageWithModal = (props) => {
-  const [showModal, setShowModal] = useState(false);
-  const [actualSize, setActualSize] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    Image.getSize(props.uri, (width, height) => {
-      setActualSize({ width, height });
-    });
-  }, []);
-
-  return (
-    <View>
-      {/* <Text>{JSON.stringify(actualSize)}</Text> */}
-      <Pressable
-        onPress={() => {
-          setStatusBarHidden(true);
-          setShowModal(true);
-        }}
-      >
-        <Image
-          source={{ uri: props.uri }}
-          style={{ width: 200, height: 200 }}
-        />
-      </Pressable>
-      <Modal
-        visible={showModal}
-        transparent={true}
-        statusBarTranslucent={true}
-        onRequestClose={() => {
-          setShowModal(false);
-          setStatusBarHidden(false);
-        }}
-      >
-        <ImageViewer
-          imageUrls={[
-            {
-              url: "",
-              width: actualSize.width,
-              height: actualSize.height,
-              props: { source: { uri: props.uri } },
-            },
-          ]}
-        />
-      </Modal>
-    </View>
-  );
-};
 
 const App = () => {
   const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;

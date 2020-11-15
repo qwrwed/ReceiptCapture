@@ -14,11 +14,14 @@ export const AppButton = (props) => {
   const { iconSize = 24 } = { props };
   return (
     <Button
-      style={styles.button}
+      style={[styles.button, props.style]}
       contentStyle={styles.buttonContent}
       labelStyle={styles.buttonLabel}
-      onPress={props.onPress}
       mode="contained"
+      onPress={props.onPress}
+      disabled={props.disabled}
+      loading={props.loading}
+      compact={props.compact}
       icon={() => (
         <MaterialCommunityIcons
           name={props.icon}

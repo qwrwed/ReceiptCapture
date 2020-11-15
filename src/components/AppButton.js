@@ -1,23 +1,62 @@
 import { MaterialCommunityIcons } from "@ref/vector-icons";
+import color from "color";
 import React from "react";
-import { useColorScheme } from "react-native";
-import { DarkTheme, DefaultTheme, Button } from "react-native-paper";
+import { withTheme, Button } from "react-native-paper";
 
 import { styles } from "../styles";
 
-export const AppButton = (props) => {
-  const colorScheme = useColorScheme();
-  const { theme = colorScheme === "dark" ? DarkTheme : DefaultTheme } = {
-    props,
-  };
-  const { colors } = theme;
+const AppButton = (props) => {
   const { iconSize = 24 } = { props };
+  const { color: buttonColor, disabled, theme, mode = "contained" } = props;
+  const { colors } = theme;
+  var textColor, backgroundColor;
+
+  if (mode === "contained") {
+    if (disabled) {
+      backgroundColor = color(theme.dark ? "#FFF" : "#000")
+        .alpha(0.12)
+        .rgb()
+        .string();
+    } else if (buttonColor) {
+      backgroundColor = buttonColor;
+    } else {
+      backgroundColor = colors.primary;
+    }
+  } else {
+    backgroundColor = "transparent";
+  }
+
+  if (disabled) {
+    textColor = color(theme.dark ? "#FFF" : "#000")
+      .alpha(0.32)
+      .rgb()
+      .string();
+  } else if (mode === "contained") {
+    let isDark;
+
+    if (typeof dark === "boolean") {
+      isDark = dark;
+    } else {
+      isDark =
+        backgroundColor === "transparent"
+          ? false
+          : !color(backgroundColor).isLight();
+    }
+
+    textColor = isDark ? "#FFF" : "#000";
+  } else if (buttonColor) {
+    textColor = buttonColor;
+  } else {
+    textColor = colors.primary;
+  }
+
   return (
     <Button
       style={[styles.button, props.style]}
       contentStyle={styles.buttonContent}
       labelStyle={styles.buttonLabel}
-      mode="contained"
+      mode={mode}
+      color={buttonColor}
       onPress={props.onPress}
       disabled={props.disabled}
       loading={props.loading}
@@ -26,7 +65,7 @@ export const AppButton = (props) => {
         <MaterialCommunityIcons
           name={props.icon}
           size={iconSize}
-          color={colors.background}
+          color={textColor}
         />
       )}
     >
@@ -34,3 +73,5 @@ export const AppButton = (props) => {
     </Button>
   );
 };
+
+export default withTheme(AppButton);

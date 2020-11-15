@@ -1,27 +1,18 @@
 import React from "react";
-import { useColorScheme, ScrollView } from "react-native";
-import {
-  DarkTheme,
-  DefaultTheme,
-  Provider as PaperProvider,
-} from "react-native-paper";
+import { ScrollView } from "react-native";
+import { Provider as PaperProvider } from "react-native-paper";
 
 import { styles } from "../styles";
 import { AppSafeAreaView } from "./AppSafeAreaView";
 import { AppStatusBar } from "./AppStatusBar";
 
 export const AppScreenWrapper = (props) => {
-  const colorScheme = useColorScheme();
-  const { theme = colorScheme === "dark" ? DarkTheme : DefaultTheme } = {
-    props,
-  };
-
   return (
-    <PaperProvider theme={theme}>
+    <PaperProvider theme={props.theme}>
       <AppStatusBar barStyle="auto" />
       <AppSafeAreaView
         style={[
-          { backgroundColor: theme.colors.background },
+          { backgroundColor: props.theme.colors.background },
           styles.container,
           props.style,
         ]}

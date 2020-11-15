@@ -1,19 +1,12 @@
 import React, { useState } from "react";
-import {
-  View,
-  //useColorScheme,
-} from "react-native";
-import {
-  Text,
-  //DarkTheme,
-  //DefaultTheme,
-} from "react-native-paper";
+import { View, useColorScheme } from "react-native";
+import { Text, DarkTheme, DefaultTheme } from "react-native-paper";
 import { RFValue } from "react-native-responsive-fontsize";
 
-import { AppButton } from "./src/components/AppButton";
+import AppButton from "./src/components/AppButton";
 import { AppScreenWrapper } from "./src/components/AppScreenWrapper";
 import { ImageWithModal } from "./src/components/ImageWithModal";
-import { ViewFlashOnUpdate } from "./src/components/ViewFlashOnUpdate";
+import ViewFlashOnUpdate from "./src/components/ViewFlashOnUpdate";
 import { styles } from "./src/styles";
 import { pickImage, takeImage, uploadImage } from "./src/utils";
 
@@ -25,7 +18,17 @@ const SERVER_ADDRESS_FULL =
   SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
 
 const App = () => {
-  // const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;
+  const isPreferDark = useColorScheme() === "dark";
+  const themePaper = isPreferDark ? DarkTheme : DefaultTheme;
+
+  const theme = {
+    ...themePaper,
+    colors: {
+      ...themePaper.colors,
+      notification: "#0AA"
+      //primary: isPreferDark ? "magenta" : "orange",
+    },
+  };
   // const { colors } = theme;
 
   const [uploadImageInfo, setuploadImageInfo] = useState(null);
@@ -35,7 +38,7 @@ const App = () => {
   const [receivedInfo, setReceivedInfo] = useState("No photo selected");
 
   return (
-    <AppScreenWrapper>
+    <AppScreenWrapper theme={theme}>
       <View style={{ flexDirection: "row", marginVertical: 2 }}>
         {uploadImageInfo && <ImageWithModal uri={uploadImageInfo.uri} />}
         {receivedImage && (
@@ -43,7 +46,11 @@ const App = () => {
         )}
       </View>
       <ViewFlashOnUpdate
-        style={{ marginVertical: 2 }}
+        style={{
+          marginVertical: 2,
+          borderRadius: theme.roundness,
+          paddingVertical: 2,
+        }}
         trigger={isLoading}
         condition={(trigger) => !trigger}
       >
@@ -51,7 +58,11 @@ const App = () => {
         <Text style={styles.textMono}>{receivedInfo}</Text>
       </ViewFlashOnUpdate>
       <ViewFlashOnUpdate
-        style={{ marginVertical: 2 }}
+        style={{
+          marginVertical: 2,
+          paddingVertical: 2,
+          borderRadius: theme.roundness,
+        }}
         trigger={willDownloadImage}
         condition={() => true}
       >

@@ -1,32 +1,25 @@
-import { MaterialCommunityIcons } from "@ref/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  Animated,
-  Platform,
   View,
-  ScrollView,
-  useColorScheme,
+  //useColorScheme,
 } from "react-native";
 import {
-  DarkTheme,
-  DefaultTheme,
-  Provider as PaperProvider,
-  Button,
   Text,
-  ToggleButton,
-  IconButton,
+  //DarkTheme,
+  //DefaultTheme,
 } from "react-native-paper";
 import { RFValue } from "react-native-responsive-fontsize";
 
-import { AppScreenWrapper } from "./src/components/AppScreenWrapper";
 import { AppButton } from "./src/components/AppButton";
+import { AppScreenWrapper } from "./src/components/AppScreenWrapper";
 import { ImageWithModal } from "./src/components/ImageWithModal";
+import { ViewFlashOnUpdate } from "./src/components/ViewFlashOnUpdate";
 import { styles } from "./src/styles";
-import { fadeInThenOut, adjustColor } from "./src/utils";
 
 const SERVER_ADDRESS = "http://192.168.0.2";
 const SERVER_PORT = "5000";
+const CONNECTION_TIMEOUT = 1;
 
 const SERVER_ADDRESS_FULL =
   SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
@@ -70,8 +63,7 @@ const uploadImage = async (
     return;
   }
   const controller = new AbortController();
-  const timeout = 60; // seconds
-  setTimeout(() => controller.abort(), timeout * 1000);
+  setTimeout(() => controller.abort(), CONNECTION_TIMEOUT * 1000);
   try {
     var response = await fetch(urlRoot + "\\upload", {
       method: "POST",
@@ -106,23 +98,26 @@ const uploadImage = async (
     }
   } catch (err) {
     let errorMessage;
-    console.log("Error:");
-    console.log(err);
     if (typeof err.status !== "undefined") {
       errorMessage = `${err.status} ${err.message}`;
     } else if (err.name === "AbortError") {
-      errorMessage = `Could not connect to server within ${timeout} seconds`;
+      errorMessage = `No response from server within ${CONNECTION_TIMEOUT} seconds`;
     } else if (err.message === "Network request failed") {
       errorMessage = "Could not connect to server";
     } else {
       errorMessage = "unknown error";
-      console.log("Error was unknown");
     }
+    console.log("Error:");
+    console.log(errorMessage);
+    // console.log(err);
     return { receivedImage: null, receivedInfo: errorMessage };
   }
 };
 
 const App = () => {
+  // const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;
+  // const { colors } = theme;
+
   const [uploadImageInfo, setuploadImageInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [willDownloadImage, setWillDownloadImage] = useState(false);
@@ -137,8 +132,14 @@ const App = () => {
           <ImageWithModal uri={`data:image/gif;base64,${receivedImage}`} />
         )}
       </View>
-      <Text style={styles.text}>Received Info:</Text>
-      <Text style={styles.textMono}>{receivedInfo}</Text>
+      <ViewFlashOnUpdate
+        style={{ marginVertical: 2 }}
+        trigger={isLoading}
+        condition={(trigger) => !trigger}
+      >
+        <Text style={styles.text}>Received info:</Text>
+        <Text style={styles.textMono}>{receivedInfo}</Text>
+      </ViewFlashOnUpdate>
       <View>
         <AppButton
           icon="camera"
@@ -191,6 +192,7 @@ const App = () => {
           }}
         />
       </View>
+      <View style={{ height: RFValue(60) }} />
     </AppScreenWrapper>
   );
 };

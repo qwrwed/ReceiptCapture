@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Animated, useColorScheme } from "react-native";
-import { DarkTheme, DefaultTheme, withTheme } from "react-native-paper";
+import { Animated } from "react-native";
+import { withTheme } from "react-native-paper";
 
 import { fadeInThenOut } from "../utils";
 

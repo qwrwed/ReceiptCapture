@@ -25,7 +25,7 @@ const App = () => {
     ...themePaper,
     colors: {
       ...themePaper.colors,
-      notification: "#0AA"
+      notification: "#0AA",
       //primary: isPreferDark ? "magenta" : "orange",
     },
   };

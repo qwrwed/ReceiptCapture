@@ -25,9 +25,12 @@ import { ImageWithModal } from "./src/components/ImageWithModal";
 import { styles } from "./src/styles";
 import { fadeInThenOut, adjustColor } from "./src/utils";
 
+const pickImage = async () => {
+  return await getImage(ImagePicker.launchImageLibraryAsync);
+};
+
 const takeImage = async () => {
-  const image = await getImage(ImagePicker.launchCameraAsync);
-  return image;
+  return await getImage(ImagePicker.launchCameraAsync);
 };
 
 const getImage = async (launcherAsync) => {
@@ -49,22 +52,35 @@ const getImage = async (launcherAsync) => {
 };
 
 const App = () => {
+  const [imageUploadInfo, setImageUploadInfo] = useState(null);
   return (
     <AppScreenWrapper>
-      <Text style={{ fontSize: 170, backgroundColor: "#00F" }}>pad1</Text>
+      <Text>{JSON.stringify(imageUploadInfo)}</Text>
       <Text style={{ fontSize: 170, backgroundColor: "#00F" }}>pad2</Text>
       <Text style={{ fontSize: 170, backgroundColor: "#00F" }}>pad3</Text>
       <Text style={{ fontSize: 170, backgroundColor: "#00F" }}>pad4</Text>
       <View>
         <AppButton
           icon="camera"
+          title="Take Photo"
           onPress={async () => {
-            const imageUploadInfo = await takeImage();
-            console.log(imageUploadInfo);
+            setImageUploadInfo(await takeImage());
           }}
-        >
-          Take Photo
-        </AppButton>
+        />
+        <AppButton
+          icon="folder-image"
+          title="Select Photo"
+          onPress={async () => {
+            setImageUploadInfo(await pickImage());
+          }}
+        />
+        <AppButton
+          icon="eraser"
+          title="Clear"
+          onPress={() => {
+            setImageUploadInfo(null);
+          }}
+        />
       </View>
     </AppScreenWrapper>
   );

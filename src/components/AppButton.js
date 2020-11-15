@@ -27,7 +27,7 @@ export const AppButton = (props) => {
         />
       )}
     >
-      {props.children}
+      {props.title}
     </Button>
   );
 };

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 
-export const ESLintCompatibleStatusBar = (props) => {
+export const AppStatusBar = (props) => {
   return <StatusBar style={props.barStyle} />;
 };

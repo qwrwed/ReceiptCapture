@@ -1,4 +1,106 @@
+import * as ImagePicker from "expo-image-picker";
 import { Animated } from "react-native";
+
+export const pickImage = async () => {
+  return await getImage(ImagePicker.launchImageLibraryAsync);
+};
+
+export const takeImage = async () => {
+  return await getImage(ImagePicker.launchCameraAsync);
+};
+
+const getImage = async (launcherAsync) => {
+  const result = await launcherAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: false,
+  });
+
+  if (result.cancelled) {
+    return null;
+  }
+  const localUri = result.uri;
+  const filename = localUri.split("/").pop();
+  const match = /\.(\w+)$/.exec(filename);
+  const type = match ? `image/${match[1]}` : "image";
+  const uploadImageInfo = { uri: localUri, name: filename, type };
+
+  return uploadImageInfo;
+};
+
+export const uploadImage = async (
+  uploadImageInfo,
+  urlRoot,
+  willDownloadImage = false,
+  timeout = 20
+) => {
+  var receivedImage = null;
+  var receivedInfo = "";
+
+  const formData = new FormData();
+  formData.append("file", uploadImageInfo);
+  formData.append("args", JSON.stringify({ returnImg: willDownloadImage }));
+  if (uploadImageInfo === null) {
+    receivedInfo = "No image attached!";
+    alert(receivedInfo);
+    return { receivedInfo, receivedImage };
+  }
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), timeout * 1000);
+  try {
+    var response = await fetch(urlRoot + "\\upload", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "content-type": "multipart/form-data",
+      },
+      signal: controller.signal,
+    });
+    if (response.ok) {
+      const json = await response.json();
+      receivedImage = json.image;
+      receivedInfo = json.info;
+    } else {
+      const text = await response.text();
+      try {
+        const json = await JSON.parse(text);
+        throw { message: json.message, status: response.status };
+      } catch (err) {
+        if (
+          err.message.startsWith("JSON Parse error:") &&
+          response.status === 500
+        ) {
+          throw {
+            name: "JSONParseError",
+            message: "Internal Server Error",
+            status: response.status,
+          };
+        } else {
+          throw err;
+        }
+      }
+    }
+  } catch (err) {
+    var errorMessage;
+    receivedInfo += "Operation failed: ";
+    if (typeof err.status !== "undefined") {
+      errorMessage = `${err.status} ${err.message}`;
+    } else if (err.name === "AbortError") {
+      errorMessage = `No response from server within ${timeout} second`;
+      if (timeout !== 1) {
+        errorMessage += "s";
+      }
+    } else if (err.message === "Network request failed") {
+      errorMessage = "Could not connect to server";
+    } else {
+      errorMessage = "unknown error";
+    }
+    console.log("Error:");
+    console.log(errorMessage);
+    // console.log(err);
+    receivedInfo += errorMessage;
+  }
+  return { receivedImage, receivedInfo };
+};
 
 export const fadeTo = (animatedValue, toValue, duration, callback) => {
   Animated.timing(animatedValue, {

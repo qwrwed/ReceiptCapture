@@ -1,4 +1,3 @@
-import * as ImagePicker from "expo-image-picker";
 import React, { useState } from "react";
 import {
   View,
@@ -16,6 +15,7 @@ import { AppScreenWrapper } from "./src/components/AppScreenWrapper";
 import { ImageWithModal } from "./src/components/ImageWithModal";
 import { ViewFlashOnUpdate } from "./src/components/ViewFlashOnUpdate";
 import { styles } from "./src/styles";
+import { pickImage, takeImage, uploadImage } from "./src/utils";
 
 const SERVER_ADDRESS = "http://192.168.0.2";
 const SERVER_PORT = "5000";
@@ -23,106 +23,6 @@ const CONNECTION_TIMEOUT = 20;
 
 const SERVER_ADDRESS_FULL =
   SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
-
-const pickImage = async () => {
-  return await getImage(ImagePicker.launchImageLibraryAsync);
-};
-
-const takeImage = async () => {
-  return await getImage(ImagePicker.launchCameraAsync);
-};
-
-const getImage = async (launcherAsync) => {
-  const result = await launcherAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: false,
-  });
-
-  if (result.cancelled) {
-    return null;
-  }
-  const localUri = result.uri;
-  const filename = localUri.split("/").pop();
-  const match = /\.(\w+)$/.exec(filename);
-  const type = match ? `image/${match[1]}` : "image";
-  const uploadImageInfo = { uri: localUri, name: filename, type };
-
-  return uploadImageInfo;
-};
-
-const uploadImage = async (
-  uploadImageInfo,
-  urlRoot,
-  willDownloadImage = false
-) => {
-  var receivedImage = null;
-  var receivedInfo = "";
-
-  const formData = new FormData();
-  formData.append("file", uploadImageInfo);
-  formData.append("args", JSON.stringify({ returnImg: willDownloadImage }));
-  if (uploadImageInfo === null) {
-    receivedInfo = "No image attached!";
-    alert(receivedInfo);
-    return { receivedInfo, receivedImage };
-  }
-  const controller = new AbortController();
-  setTimeout(() => controller.abort(), CONNECTION_TIMEOUT * 1000);
-  try {
-    var response = await fetch(urlRoot + "\\upload", {
-      method: "POST",
-      body: formData,
-      headers: {
-        "content-type": "multipart/form-data",
-      },
-      signal: controller.signal,
-    });
-    if (response.ok) {
-      const json = await response.json();
-      receivedImage = json.image;
-      receivedInfo = json.info;
-    } else {
-      const text = await response.text();
-      try {
-        const json = await JSON.parse(text);
-        throw { message: json.message, status: response.status };
-      } catch (err) {
-        if (
-          err.message.startsWith("JSON Parse error:") &&
-          response.status === 500
-        ) {
-          throw {
-            name: "JSONParseError",
-            message: "Internal Server Error",
-            status: response.status,
-          };
-        } else {
-          throw err;
-        }
-      }
-    }
-  } catch (err) {
-    var errorMessage;
-    receivedInfo += "Operation failed: ";
-    if (typeof err.status !== "undefined") {
-      errorMessage = `${err.status} ${err.message}`;
-    } else if (err.name === "AbortError") {
-      errorMessage = `No response from server within ${CONNECTION_TIMEOUT} second`;
-      if (CONNECTION_TIMEOUT !== 1) {
-        errorMessage += "s";
-      }
-    } else if (err.message === "Network request failed") {
-      errorMessage = "Could not connect to server";
-    } else {
-      errorMessage = "unknown error";
-    }
-    console.log("Error:");
-    console.log(errorMessage);
-    // console.log(err);
-    receivedInfo += errorMessage;
-  }
-  return { receivedImage, receivedInfo };
-};
 
 const App = () => {
   // const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;
@@ -194,7 +94,8 @@ const App = () => {
               const response = await uploadImage(
                 uploadImageInfo,
                 SERVER_ADDRESS_FULL,
-                willDownloadImage
+                willDownloadImage,
+                CONNECTION_TIMEOUT
               );
               setReceivedInfo(response.receivedInfo);
               setReceivedImage(response.receivedImage);

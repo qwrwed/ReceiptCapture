@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-end",
     paddingHorizontal: 10,
+    //backgroundColor: "#F00",
   },
   button: {
     alignSelf: "stretch",

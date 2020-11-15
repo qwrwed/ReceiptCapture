@@ -26,7 +26,11 @@ import { styles } from "./src/styles";
 import { fadeInThenOut, adjustColor } from "./src/utils";
 
 const App = () => {
-  return <Text>To be refactored</Text>;
+  return (
+    <ScreenView>
+      <Text>To be refactored</Text>
+    </ScreenView>
+  );
 };
 
 export default App;

@@ -5,8 +5,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "flex-end",
     paddingHorizontal: 10,
+    justifyContent: "flex-end",
     //backgroundColor: "#F00",
   },
   button: {

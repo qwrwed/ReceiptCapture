@@ -19,7 +19,7 @@ import { styles } from "./src/styles";
 
 const SERVER_ADDRESS = "http://192.168.0.2";
 const SERVER_PORT = "5000";
-const CONNECTION_TIMEOUT = 1;
+const CONNECTION_TIMEOUT = 20;
 
 const SERVER_ADDRESS_FULL =
   SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
@@ -39,7 +39,7 @@ const getImage = async (launcherAsync) => {
   });
 
   if (result.cancelled) {
-    return;
+    return null;
   }
   const localUri = result.uri;
   const filename = localUri.split("/").pop();
@@ -55,12 +55,16 @@ const uploadImage = async (
   urlRoot,
   willDownloadImage = false
 ) => {
+  var receivedImage = null;
+  var receivedInfo = "";
+
   const formData = new FormData();
   formData.append("file", uploadImageInfo);
   formData.append("args", JSON.stringify({ returnImg: willDownloadImage }));
   if (uploadImageInfo === null) {
-    alert("No image attached!");
-    return;
+    receivedInfo = "No image attached!";
+    alert(receivedInfo);
+    return { receivedInfo, receivedImage };
   }
   const controller = new AbortController();
   setTimeout(() => controller.abort(), CONNECTION_TIMEOUT * 1000);
@@ -75,7 +79,8 @@ const uploadImage = async (
     });
     if (response.ok) {
       const json = await response.json();
-      return { receivedImage: json.image, receivedInfo: json.info };
+      receivedImage = json.image;
+      receivedInfo = json.info;
     } else {
       const text = await response.text();
       try {
@@ -97,11 +102,15 @@ const uploadImage = async (
       }
     }
   } catch (err) {
-    let errorMessage;
+    var errorMessage;
+    receivedInfo += "Operation failed: ";
     if (typeof err.status !== "undefined") {
       errorMessage = `${err.status} ${err.message}`;
     } else if (err.name === "AbortError") {
-      errorMessage = `No response from server within ${CONNECTION_TIMEOUT} seconds`;
+      errorMessage = `No response from server within ${CONNECTION_TIMEOUT} second`;
+      if (CONNECTION_TIMEOUT !== 1) {
+        errorMessage += "s";
+      }
     } else if (err.message === "Network request failed") {
       errorMessage = "Could not connect to server";
     } else {
@@ -110,8 +119,9 @@ const uploadImage = async (
     console.log("Error:");
     console.log(errorMessage);
     // console.log(err);
-    return { receivedImage: null, receivedInfo: errorMessage };
+    receivedInfo += errorMessage;
   }
+  return { receivedImage, receivedInfo };
 };
 
 const App = () => {
@@ -140,19 +150,35 @@ const App = () => {
         <Text style={styles.text}>Received info:</Text>
         <Text style={styles.textMono}>{receivedInfo}</Text>
       </ViewFlashOnUpdate>
+      <ViewFlashOnUpdate
+        style={{ marginVertical: 2 }}
+        trigger={willDownloadImage}
+        condition={() => true}
+      >
+        <Text style={styles.text}>
+          Operation: Get text{" "}
+          {willDownloadImage ? "and processed image" : "only"}
+        </Text>
+      </ViewFlashOnUpdate>
       <View>
         <AppButton
           icon="camera"
           title="Take Photo"
           onPress={async () => {
-            setuploadImageInfo(await takeImage());
+            const info = await takeImage();
+            if (info !== null) {
+              setuploadImageInfo(info);
+            }
           }}
         />
         <AppButton
           icon="folder-image"
           title="Select Photo"
           onPress={async () => {
-            setuploadImageInfo(await pickImage());
+            const info = await pickImage();
+            if (info !== null) {
+              setuploadImageInfo(info);
+            }
           }}
         />
         <View style={{ flexDirection: "row" }}>
@@ -189,6 +215,8 @@ const App = () => {
           title="Clear"
           onPress={() => {
             setuploadImageInfo(null);
+            setReceivedImage(null);
+            setReceivedInfo("No photo selected");
           }}
         />
       </View>

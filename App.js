@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import { View, useColorScheme } from "react-native";
-import { Text, DarkTheme, DefaultTheme } from "react-native-paper";
+import { Text, TextInput, DarkTheme, DefaultTheme } from "react-native-paper";
 import { RFValue } from "react-native-responsive-fontsize";
 
 import AppButton from "./src/components/AppButton";
@@ -10,8 +11,9 @@ import ViewFlashOnUpdate from "./src/components/ViewFlashOnUpdate";
 import { styles } from "./src/styles";
 import { pickImage, takeImage, uploadImage } from "./src/utils";
 
-const SERVER_ADDRESS = "http://192.168.0.2";
-const SERVER_PORT = "5000";
+const SHOW_SERVER_CONFIG = false;
+const SERVER_ADDRESS = "http://0.0.0.0";
+const SERVER_PORT = "0000";
 const CONNECTION_TIMEOUT = 20;
 
 const SERVER_ADDRESS_FULL =
@@ -36,6 +38,16 @@ const App = () => {
   const [willDownloadImage, setWillDownloadImage] = useState(false);
   const [receivedImage, setReceivedImage] = useState(null);
   const [receivedInfo, setReceivedInfo] = useState("No photo selected");
+  const [serverAddress, setServerAddress] = useState(SERVER_ADDRESS_FULL);
+
+  useEffect(() => {
+    (async () => {
+      const address = await AsyncStorage.getItem("@serverAddress");
+      if (address !== null) {
+        setServerAddress(address);
+      }
+    })();
+  }, []);
 
   return (
     <AppScreenWrapper theme={theme}>
@@ -104,7 +116,7 @@ const App = () => {
               setReceivedImage(null);
               const response = await uploadImage(
                 uploadImageInfo,
-                SERVER_ADDRESS_FULL,
+                serverAddress,
                 willDownloadImage,
                 CONNECTION_TIMEOUT
               );
@@ -132,6 +144,19 @@ const App = () => {
           }}
         />
       </View>
+      {SHOW_SERVER_CONFIG && (
+        <TextInput
+          label="Server/Port"
+          value={serverAddress}
+          mode="outlined"
+          onChangeText={(text) => setServerAddress(text)}
+          onEndEditing={async (e) => {
+            const text = e.nativeEvent.text;
+            console.log(`Setting server address to ${text}`);
+            await AsyncStorage.setItem("@serverAddress", text);
+          }}
+        />
+      )}
       <View style={{ height: RFValue(60) }} />
     </AppScreenWrapper>
   );

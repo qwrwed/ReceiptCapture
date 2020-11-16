@@ -9,6 +9,7 @@
     "lint": "eslint *.js **/*.js"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.13.2",
     "@ref/vector-icons": "^11.0.0",
     "color": "^3.1.3",
     "expo": "~39.0.2",

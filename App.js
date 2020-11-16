@@ -11,7 +11,7 @@ import ViewFlashOnUpdate from "./src/components/ViewFlashOnUpdate";
 import { styles } from "./src/styles";
 import { pickImage, takeImage, uploadImage } from "./src/utils";
 
-const SHOW_SERVER_CONFIG = false;
+const SHOW_SERVER_CONFIG = true;
 const SERVER_ADDRESS = "http://0.0.0.0";
 const SERVER_PORT = "0000";
 const CONNECTION_TIMEOUT = 20;
@@ -28,6 +28,7 @@ const App = () => {
     colors: {
       ...themePaper.colors,
       notification: "#0AA",
+      primary: "#6200ee",
       //primary: isPreferDark ? "magenta" : "orange",
     },
   };
@@ -152,12 +153,11 @@ const App = () => {
           onChangeText={(text) => setServerAddress(text)}
           onEndEditing={async (e) => {
             const text = e.nativeEvent.text;
-            console.log(`Setting server address to ${text}`);
             await AsyncStorage.setItem("@serverAddress", text);
           }}
         />
       )}
-      <View style={{ height: RFValue(60) }} />
+      {false && <View style={{ height: RFValue(60) }} />}
     </AppScreenWrapper>
   );
 };

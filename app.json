@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ReceiptCapture",
+    "name": "Receipt Capture",
     "slug": "ReceiptCapture",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,7 +8,7 @@
     "splash": {
       "image": "./src/assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "userInterfaceStyle": "automatic",
     "updates": {
@@ -20,14 +20,15 @@
     "ios": {
       "supportsTablet": true
     },
-    "androidNavigationBar":{
-      "visible": "sticky-immersive"
+    "androidNavigationBar": {
+      
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      }
+        "backgroundColor": "#000000"
+      },
+      "package": "io.qwrwed.receiptcapture"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"

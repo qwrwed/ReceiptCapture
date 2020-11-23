@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { View, Alert } from "react-native";
 import { withTheme, Text, TextInput } from "react-native-paper";
 import { RFValue } from "react-native-responsive-fontsize";
 
@@ -134,11 +134,26 @@ const HomeScreen = (props) => {
         </View>
         <AppButton
           icon="eraser"
-          title="Clear"
+          title="Clear all"
           onPress={() => {
-            setuploadImageInfo(null);
-            setReceivedImage(null);
-            setReceivedInfo("(No info received yet)");
+            Alert.alert(
+              "Clear all?",
+              "Are you sure you want to clear all selected and received items?",
+              [
+                {
+                  text: "Cancel",
+                  style: "cancel",
+                },
+                {
+                  text: "Clear",
+                  onPress: () => {
+                    setuploadImageInfo(null);
+                    setReceivedImage(null);
+                    setReceivedInfo("(No info received yet)");
+                  },
+                },
+              ]
+            );
           }}
         />
       </View>

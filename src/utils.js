@@ -1,6 +1,16 @@
 import * as ImagePicker from "expo-image-picker";
 import { Animated } from "react-native";
 
+//https://stackoverflow.com/a/55724273
+export const padding = (a, b, c, d) => {
+  return {
+    paddingTop: a,
+    paddingRight: b ? b : a,
+    paddingBottom: c ? c : a,
+    paddingLeft: d ? d : b ? b : a,
+  };
+};
+
 export const pickImage = async () => {
   return await getImage(ImagePicker.launchImageLibraryAsync);
 };

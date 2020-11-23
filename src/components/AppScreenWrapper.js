@@ -1,32 +1,30 @@
 import React from "react";
-import { ScrollView } from "react-native";
-import { Provider as PaperProvider } from "react-native-paper";
+import { View, ScrollView } from "react-native";
+import "react-native-gesture-handler";
 
 import { styles } from "../styles";
-import { AppSafeAreaView } from "./AppSafeAreaView";
-import { AppStatusBar } from "./AppStatusBar";
 
-export const AppScreenWrapper = (props) => {
+const AppScreenWrapper = (props) => {
   return (
-    <PaperProvider theme={props.theme}>
-      <AppStatusBar barStyle="auto" />
-      <AppSafeAreaView
-        style={[
-          { backgroundColor: props.theme.colors.background },
-          styles.container,
-          props.style,
-        ]}
+    <View
+      style={[
+        { backgroundColor: props.theme.colors.background },
+        styles.container,
+        props.style,
+      ]}
+    >
+      <ScrollView
+        style={{ width: "100%" }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: "flex-end",
+          paddingVertical: 10,
+        }}
       >
-        <ScrollView
-          style={{ width: "100%" }}
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "flex-end",
-          }}
-        >
-          {props.children}
-        </ScrollView>
-      </AppSafeAreaView>
-    </PaperProvider>
+        {props.children}
+      </ScrollView>
+    </View>
   );
 };
+
+export default AppScreenWrapper;

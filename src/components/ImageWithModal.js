@@ -4,7 +4,7 @@ import { Pressable, View, Image, Modal } from "react-native";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { Text } from "react-native-paper";
 
-export const ImageWithModal = (props) => {
+const ImageWithModal = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [actualSize, setActualSize] = useState({ width: 0, height: 0 });
   useEffect(() => {
@@ -24,7 +24,7 @@ export const ImageWithModal = (props) => {
       >
         <Image
           source={{ uri: props.uri }}
-          style={{ width: 200, height: 200 }}
+          style={{ width: 200, height: 177 }}
         />
       </Pressable>
       <Modal
@@ -50,3 +50,5 @@ export const ImageWithModal = (props) => {
     </View>
   );
 };
+
+export default ImageWithModal;

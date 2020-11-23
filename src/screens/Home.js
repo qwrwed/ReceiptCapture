@@ -11,7 +11,7 @@ import ViewFlashOnUpdate from "../components/ViewFlashOnUpdate";
 import { styles } from "../styles";
 import { pickImage, takeImage, uploadImage } from "../utils";
 
-const SHOW_SERVER_CONFIG = true;
+const SHOW_CONFIG = true;
 const SERVER_ADDRESS = "http://0.0.0.0";
 const SERVER_PORT = "0000";
 const CONNECTION_TIMEOUT = 30;
@@ -27,13 +27,22 @@ const HomeScreen = (props) => {
   const [willDownloadImage, setWillDownloadImage] = useState(false);
   const [receivedImage, setReceivedImage] = useState(null);
   const [receivedInfo, setReceivedInfo] = useState("(No info received yet)");
+
   const [serverAddress, setServerAddress] = useState(SERVER_ADDRESS_FULL);
+  const [timeout, setTimeout] = useState(CONNECTION_TIMEOUT);
+  const [timeoutString, setTimeoutString] = useState(timeout.toString());
 
   useEffect(() => {
     (async () => {
       const address = await AsyncStorage.getItem("@serverAddress");
       if (address !== null) {
         setServerAddress(address);
+      }
+      const timeoutText = await AsyncStorage.getItem("@timeout");
+      if (timeout !== null) {
+        const timeout = parseInt(timeoutText, 10);
+        setTimeoutString(timeoutText);
+        setTimeout(timeout);
       }
     })();
   }, []);
@@ -117,7 +126,7 @@ const HomeScreen = (props) => {
           <AppButton
             icon={willDownloadImage ? "download" : "download-off"}
             compact={true}
-            style={{ flex: 1, marginLeft: 2 }}
+            style={{ flex: 1.2, marginLeft: 2 }}
             onPress={async () => {
               setWillDownloadImage(!willDownloadImage);
             }}
@@ -133,17 +142,39 @@ const HomeScreen = (props) => {
           }}
         />
       </View>
-      {SHOW_SERVER_CONFIG && (
-        <TextInput
-          label="Server/Port"
-          value={serverAddress}
-          mode="outlined"
-          onChangeText={(text) => setServerAddress(text)}
-          onEndEditing={async (e) => {
-            const text = e.nativeEvent.text;
-            await AsyncStorage.setItem("@serverAddress", text);
-          }}
-        />
+      {SHOW_CONFIG && (
+        <View style={{ flexDirection: "row" }}>
+          <TextInput
+            label="Server/Port"
+            value={serverAddress}
+            mode="outlined"
+            onChangeText={(text) => setServerAddress(text)}
+            onEndEditing={async (e) => {
+              const text = e.nativeEvent.text;
+              await AsyncStorage.setItem("@serverAddress", text);
+            }}
+            style={{ flex: 4, marginRight: 2 }}
+          />
+          <TextInput
+            label="Timeout"
+            value={timeoutString}
+            mode="outlined"
+            keyboardType="numeric"
+            onChangeText={(text) => {
+              setTimeoutString(text.replace(/[^0-9]/g, ""));
+            }}
+            onEndEditing={async (e) => {
+              var text = e.nativeEvent.text;
+              var num = parseInt(text, 10);
+              num = Number.isInteger(num) ? num : CONNECTION_TIMEOUT;
+              text = num.toString();
+              setTimeout(num);
+              setTimeoutString(text);
+              await AsyncStorage.setItem("@timeout", text);
+            }}
+            style={{ flex: 1.2, marginLeft: 2 }}
+          />
+        </View>
       )}
       {false && <View style={{ height: RFValue(10) }} />}
     </AppScreenWrapper>

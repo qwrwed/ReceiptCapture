@@ -24,7 +24,7 @@ const ImageWithModal = (props) => {
       >
         <Image
           source={{ uri: props.uri }}
-          style={{ width: 200, height: 177 }}
+          style={{ width: 200, height: 190 }}
         />
       </Pressable>
       <Modal

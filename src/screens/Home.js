@@ -5,14 +5,14 @@ import { withTheme, Text, TextInput } from "react-native-paper";
 import { RFValue } from "react-native-responsive-fontsize";
 
 import AppButton from "../components/AppButton";
-import AppScreenWrapper from "../components/AppScreenWrapper";
+import CodeWithModal from "../components/CodeWithModal";
 import ImageWithModal from "../components/ImageWithModal";
 import ViewFlashOnUpdate from "../components/ViewFlashOnUpdate";
 import { styles } from "../styles";
 import { pickImage, takeImage, uploadImage } from "../utils";
 import LoadingScreen from "./Loading";
 
-const SHOW_CONFIG = true;
+const SHOW_CONFIG = false;
 const SERVER_ADDRESS = "http://0.0.0.0";
 const SERVER_PORT = "0000";
 const CONNECTION_TIMEOUT = 30;
@@ -44,12 +44,26 @@ const HomeScreen = (props) => {
     })();
   }, []);
 
-  if (timeout === null || serverAddress === null) {
+  if (SHOW_CONFIG && (timeout === null || serverAddress === null)) {
     return <LoadingScreen />;
   } else {
     return (
-      <AppScreenWrapper theme={theme}>
-        <View style={{ flexDirection: "row", marginVertical: 2 }}>
+      <View
+        style={[
+          styles.container,
+          props.style,
+          {
+            //flexGrow: 1,
+            //justifyContent: "flex-end",
+          },
+        ]}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            marginVertical: 2,
+          }}
+        >
           {uploadImageInfo && <ImageWithModal uri={uploadImageInfo.uri} />}
           {receivedImage && (
             <ImageWithModal uri={`data:image/gif;base64,${receivedImage}`} />
@@ -64,13 +78,13 @@ const HomeScreen = (props) => {
           trigger={isLoading}
           condition={(trigger) => !trigger}
         >
-          <Text style={styles.text}>Received info:</Text>
-          <Text style={styles.textMono}>{receivedInfo}</Text>
+          <CodeWithModal title="Received Info">{receivedInfo}</CodeWithModal>
         </ViewFlashOnUpdate>
         <ViewFlashOnUpdate
           style={{
             marginVertical: 2,
             paddingVertical: 2,
+            paddingHorizontal: 5,
             borderRadius: theme.roundness,
           }}
           trigger={willDownloadImage}
@@ -116,7 +130,7 @@ const HomeScreen = (props) => {
                   uploadImageInfo,
                   serverAddress,
                   willDownloadImage,
-                  CONNECTION_TIMEOUT
+                  timeout.num
                 );
                 setReceivedInfo(response.receivedInfo);
                 setReceivedImage(response.receivedImage);
@@ -192,7 +206,7 @@ const HomeScreen = (props) => {
           </View>
         )}
         {false && <View style={{ height: RFValue(10) }} />}
-      </AppScreenWrapper>
+      </View>
     );
   }
 };

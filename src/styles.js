@@ -4,15 +4,16 @@ import { RFValue } from "react-native-responsive-fontsize";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    paddingHorizontal: 10,
+    //alignItems: "center",
+    padding: 10,
     justifyContent: "flex-end",
+    width: "100%",
     //backgroundColor: "#F00",
   },
   button: {
-    alignSelf: "stretch",
+    //alignSelf: "stretch",
     height: RFValue(60),
-    width: "100%",
+    //width: "100%",
     marginVertical: 2,
   },
   buttonContent: {

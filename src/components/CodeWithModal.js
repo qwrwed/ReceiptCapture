@@ -11,9 +11,7 @@ const CodeWithModal = (props) => {
     <View>
       <ScrollView
         style={{
-          height: "100%",
           padding: 5,
-          //marginVertical: 2,
         }}
       >
         <Pressable

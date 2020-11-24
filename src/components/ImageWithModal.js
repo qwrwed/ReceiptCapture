@@ -16,14 +16,7 @@ const ImageWithModal = (props) => {
   }, [props.uri]);
 
   return (
-    <View
-      style={[
-        props.style,
-        {
-          flex: 1,
-        },
-      ]}
-    >
+    <View style={props.style}>
       <Pressable
         onPress={() => {
           if (props.uri !== null) {

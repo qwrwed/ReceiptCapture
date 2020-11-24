@@ -3,12 +3,12 @@ import { RFValue } from "react-native-responsive-fontsize";
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    //flex: 1,
     //alignItems: "center",
-    paddingHorizontal: 10,
-    marginVertical: 10,
+    //paddingHorizontal: 10,
+    //marginVertical: 10,
     //justifyContent: "flex-end",
-    width: "100%",
+    //width: "100%",
     //backgroundColor: "#F00",
   },
   button: {

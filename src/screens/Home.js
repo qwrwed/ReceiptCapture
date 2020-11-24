@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from "react";
-import { View, Alert } from "react-native";
+import { useHeaderHeight } from "@react-navigation/stack";
+import React, { useEffect, useState, useRef } from "react";
+import { View, Alert, ScrollView, Dimensions } from "react-native";
 import { withTheme, Text, TextInput } from "react-native-paper";
 
 import AppButton from "../components/AppButton";
@@ -27,10 +28,10 @@ const HomeScreen = (props) => {
     name: null,
     type: null,
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [willDownloadImage, setWillDownloadImage] = useState(false);
   const [receivedImage, setReceivedImage] = useState({ uri: null });
   const [receivedInfo, setReceivedInfo] = useState("(No info received yet)");
+  const [isLoading, setIsLoading] = useState(false);
+  const [willDownloadImage, setWillDownloadImage] = useState(false);
 
   const [serverAddress, setServerAddress] = useState(null);
   const [timeout, setTimeout] = useState(null);
@@ -47,189 +48,213 @@ const HomeScreen = (props) => {
     })();
   }, []);
 
+  const scrollViewRef = useRef();
+  const screenHeight = Dimensions.get("window").height - useHeaderHeight();
+
   if (SHOW_CONFIG && (timeout === null || serverAddress === null)) {
     return <LoadingScreen />;
   } else {
     return (
-      <View style={styles.container}>
-        <View style={{ flex: 1 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              marginVertical: 2,
-              flex: 1,
-            }}
-          >
-            <ImageWithModal
+      <View style={{ flex: 1 }}>
+        <ScrollView
+          contentContainerStyle={{
+            height: screenHeight,
+            marginHorizontal: 10,
+            paddingBottom: 8,
+          }}
+          ref={scrollViewRef}
+          onLayout={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+        >
+          <View style={{ flex: 1, marginVertical: 8 }}>
+            <View
               style={{
-                backgroundColor: props.theme.colors.surface,
-                borderRadius: props.theme.roundness,
-                marginRight: 2,
+                height: "50%",
+                flexDirection: "row",
+                marginVertical: 2,
               }}
-              uri={uploadImageInfo.uri}
-            />
-            <ImageWithModal
+            >
+              <ImageWithModal
+                style={{
+                  flex: 1,
+                  //width: "50%",
+                  backgroundColor: props.theme.colors.surface,
+                  borderRadius: props.theme.roundness,
+                  marginRight: 2,
+                }}
+                uri={uploadImageInfo.uri}
+              />
+              <ImageWithModal
+                style={{
+                  flex: 1,
+                  //width: "50%",
+                  backgroundColor: props.theme.colors.surface,
+                  borderRadius: props.theme.roundness,
+                  marginLeft: 2,
+                }}
+                uri={receivedImage.uri}
+              />
+            </View>
+
+            <ViewFlashOnUpdate
               style={{
+                height: "50%",
+                marginVertical: 2,
+                borderRadius: theme.roundness,
                 backgroundColor: props.theme.colors.surface,
-                borderRadius: props.theme.roundness,
-                marginLeft: 2,
               }}
-              uri={receivedImage.uri}
-            />
+              trigger={isLoading}
+              condition={(trigger) => !trigger}
+            >
+              <CodeWithModal title="Received Info">
+                {receivedInfo}
+              </CodeWithModal>
+            </ViewFlashOnUpdate>
           </View>
-          <ViewFlashOnUpdate
-            style={{
-              marginVertical: 2,
-              borderRadius: theme.roundness,
-              backgroundColor: props.theme.colors.surface,
-              flex: 1,
-            }}
-            trigger={isLoading}
-            condition={(trigger) => !trigger}
-          >
-            <CodeWithModal title="Received Info">{receivedInfo}</CodeWithModal>
-          </ViewFlashOnUpdate>
-        </View>
-        <View>
-          <ViewFlashOnUpdate
-            style={{
-              marginVertical: 2,
-              paddingVertical: 2,
-              paddingHorizontal: 5,
-              borderRadius: theme.roundness,
-              backgroundColor: props.theme.colors.surface,
-            }}
-            trigger={willDownloadImage}
-            condition={() => true}
-          >
-            <Text style={styles.text}>
-              Operation: Get text{" "}
-              {willDownloadImage ? "and processed image" : "only"}
-            </Text>
-          </ViewFlashOnUpdate>
+
           <View>
-            <AppButton
-              icon="camera"
-              title="Take Photo"
-              onPress={async () => {
-                const info = await takeImage();
-                if (info !== null) {
-                  setuploadImageInfo(info);
-                }
+            <ViewFlashOnUpdate
+              style={{
+                marginVertical: 2,
+                paddingVertical: 2,
+                paddingHorizontal: 5,
+                borderRadius: theme.roundness,
+                backgroundColor: props.theme.colors.surface,
               }}
-            />
-            <AppButton
-              icon="folder-image"
-              title="Select Photo"
-              onPress={async () => {
-                const info = await pickImage();
-                if (info !== null) {
-                  setuploadImageInfo(info);
-                }
-              }}
-            />
-            <View style={{ flexDirection: "row" }}>
+              trigger={willDownloadImage}
+              condition={() => true}
+            >
+              <Text style={styles.text}>
+                Operation: Get text{" "}
+                {willDownloadImage ? "and processed image" : "only"}
+              </Text>
+            </ViewFlashOnUpdate>
+            <View>
               <AppButton
-                icon="upload"
-                title="Upload Photo"
-                style={{ flex: 3, marginRight: 2 }}
-                disabled={uploadImageInfo.uri === null || isLoading}
-                loading={isLoading}
+                icon="camera"
+                title="Take Photo"
                 onPress={async () => {
-                  setIsLoading(true);
-                  setReceivedImage({ uri: null });
-                  const response = await uploadImage(
-                    uploadImageInfo,
-                    serverAddress,
-                    willDownloadImage,
-                    timeout.num
-                  );
-                  setReceivedInfo(response.receivedInfo);
-                  if (willDownloadImage) {
-                    setReceivedImage({
-                      uri: `data:image/gif;base64,${response.receivedImage}`,
-                    });
+                  const info = await takeImage();
+                  if (info !== null) {
+                    setuploadImageInfo(info);
                   }
-                  setIsLoading(false);
                 }}
               />
               <AppButton
-                icon={willDownloadImage ? "download" : "download-off"}
-                compact={true}
-                style={{ flex: 1.2, marginLeft: 2 }}
+                icon="folder-image"
+                title="Select Photo"
                 onPress={async () => {
-                  setWillDownloadImage(!willDownloadImage);
+                  const info = await pickImage();
+                  if (info !== null) {
+                    setuploadImageInfo(info);
+                  }
                 }}
-                disabled={isLoading}
               />
-            </View>
-            <AppButton
-              icon="eraser"
-              title="Clear all"
-              onPress={() => {
-                Alert.alert(
-                  "Clear all?",
-                  "Are you sure you want to clear all selected and received items?",
-                  [
-                    {
-                      text: "Cancel",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Clear",
-                      onPress: () => {
-                        setuploadImageInfo({
-                          uri: null,
-                          name: null,
-                          type: null,
-                        });
-                        setReceivedImage({ uri: null });
-                        setReceivedInfo("(No info received yet)");
+              <View style={{ flexDirection: "row" }}>
+                <AppButton
+                  icon="upload"
+                  title="Upload Photo"
+                  style={{ flex: 3, marginRight: 2 }}
+                  disabled={uploadImageInfo.uri === null || isLoading}
+                  loading={isLoading}
+                  onPress={async () => {
+                    setIsLoading(true);
+                    setReceivedImage({ uri: null });
+                    const response = await uploadImage(
+                      uploadImageInfo,
+                      serverAddress,
+                      willDownloadImage,
+                      timeout.num
+                    );
+                    setReceivedInfo(response.receivedInfo);
+                    if (willDownloadImage) {
+                      setReceivedImage({
+                        uri: `data:image/gif;base64,${response.receivedImage}`,
+                      });
+                    }
+                    setIsLoading(false);
+                  }}
+                />
+                <AppButton
+                  icon={willDownloadImage ? "download" : "download-off"}
+                  compact={true}
+                  style={{ flex: 1.2, marginLeft: 2 }}
+                  onPress={async () => {
+                    setWillDownloadImage(!willDownloadImage);
+                  }}
+                  disabled={isLoading}
+                />
+              </View>
+              <AppButton
+                icon="eraser"
+                title="Clear all"
+                onPress={() => {
+                  Alert.alert(
+                    "Clear all?",
+                    "Are you sure you want to clear all selected and received items?",
+                    [
+                      {
+                        text: "Cancel",
+                        style: "cancel",
                       },
-                    },
-                  ]
-                );
-              }}
-            />
-          </View>
-          {SHOW_CONFIG && (
-            <View style={{ flexDirection: "row" }}>
-              <TextInput
-                label="Server/Port"
-                value={serverAddress}
-                mode="outlined"
-                onChangeText={(text) => setServerAddress(text)}
-                onEndEditing={async (e) => {
-                  const text = e.nativeEvent.text;
-                  await AsyncStorage.setItem("@serverAddress", text);
+                      {
+                        text: "Clear",
+                        onPress: () => {
+                          setuploadImageInfo({
+                            uri: null,
+                            name: null,
+                            type: null,
+                          });
+                          setReceivedImage({ uri: null });
+                          setReceivedInfo("(No info received yet)");
+                        },
+                      },
+                    ]
+                  );
                 }}
-                style={{ flex: 4, marginRight: 2 }}
-              />
-              <TextInput
-                label="Timeout"
-                value={timeout.text}
-                mode="outlined"
-                keyboardType="numeric"
-                onChangeText={(text) => {
-                  setTimeout({ ...timeout, text: text.replace(/[^0-9]/g, "") });
-                }}
-                onEndEditing={async (e) => {
-                  var text = e.nativeEvent.text;
-                  var num = parseInt(text, 10);
-                  num = Number.isInteger(num) ? num : timeout.num;
-                  text = num.toString();
-                  setTimeout({ num, text });
-                  await AsyncStorage.setItem("@timeout", text);
-                }}
-                style={{ flex: 1.2, marginLeft: 2 }}
-                right={<TextInput.Affix text="sec" />}
               />
             </View>
-          )}
-        </View>
+            {SHOW_CONFIG && (
+              <View style={{ flexDirection: "row" }}>
+                <TextInput
+                  label="Server/Port"
+                  value={serverAddress}
+                  mode="outlined"
+                  onChangeText={(text) => setServerAddress(text)}
+                  onEndEditing={async (e) => {
+                    const text = e.nativeEvent.text;
+                    await AsyncStorage.setItem("@serverAddress", text);
+                  }}
+                  style={{ flex: 4, marginRight: 2 }}
+                />
+                <TextInput
+                  label="Timeout"
+                  value={timeout.text}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  onChangeText={(text) => {
+                    setTimeout({
+                      ...timeout,
+                      text: text.replace(/[^0-9]/g, ""),
+                    });
+                  }}
+                  onEndEditing={async (e) => {
+                    var text = e.nativeEvent.text;
+                    var num = parseInt(text, 10);
+                    num = Number.isInteger(num) ? num : timeout.num;
+                    text = num.toString();
+                    setTimeout({ num, text });
+                    await AsyncStorage.setItem("@timeout", text);
+                  }}
+                  style={{ flex: 1.2, marginLeft: 2 }}
+                  right={<TextInput.Affix text="sec" />}
+                />
+              </View>
+            )}
+          </View>
+        </ScrollView>
       </View>
     );
   }
 };
-
+//<Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}></Pressable>
 export default withTheme(HomeScreen);

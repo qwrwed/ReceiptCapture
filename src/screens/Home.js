@@ -11,7 +11,7 @@ import { styles } from "../styles";
 import { pickImage, takeImage, uploadImage } from "../utils";
 import LoadingScreen from "./Loading";
 
-const SHOW_CONFIG = false;
+const SHOW_CONFIG = true;
 const SERVER_ADDRESS = "http://0.0.0.0";
 const SERVER_PORT = "0000";
 const CONNECTION_TIMEOUT = 30;
@@ -62,7 +62,7 @@ const HomeScreen = (props) => {
           >
             <ImageWithModal
               style={{
-                backgroundColor: "#7773",
+                backgroundColor: props.theme.colors.surface,
                 borderRadius: props.theme.roundness,
                 marginRight: 2,
               }}
@@ -70,7 +70,7 @@ const HomeScreen = (props) => {
             />
             <ImageWithModal
               style={{
-                backgroundColor: "#7773",
+                backgroundColor: props.theme.colors.surface,
                 borderRadius: props.theme.roundness,
                 marginLeft: 2,
               }}
@@ -81,7 +81,7 @@ const HomeScreen = (props) => {
             style={{
               marginVertical: 2,
               borderRadius: theme.roundness,
-              backgroundColor: "#7773",
+              backgroundColor: props.theme.colors.surface,
               flex: 1,
             }}
             trigger={isLoading}
@@ -97,7 +97,7 @@ const HomeScreen = (props) => {
               paddingVertical: 2,
               paddingHorizontal: 5,
               borderRadius: theme.roundness,
-              backgroundColor: "#7773",
+              backgroundColor: props.theme.colors.surface,
             }}
             trigger={willDownloadImage}
             condition={() => true}

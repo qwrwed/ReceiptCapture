@@ -31,8 +31,7 @@ const App = () => {
       ...themeImported.colors,
       notification: "#0AA",
       primary: "#6200ee",
-      //primary: "cyan",
-      //background: "#F77",
+      surface: "#7773",
       //primary: isPreferDark ? "magenta" : "orange",
     },
   };

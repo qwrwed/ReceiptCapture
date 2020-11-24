@@ -38,7 +38,9 @@ const CodeWithModal = (props) => {
         <View
           style={{ flex: 1, backgroundColor: props.theme.colors.background }}
         >
-          <ScrollView style={{ flex: 1, backgroundColor: "#7773" }}>
+          <ScrollView
+            style={{ flex: 1, backgroundColor: props.theme.colors.surface }}
+          >
             <View style={{ padding: 10 }}>
               <Text style={styles.text}>{props.title}:</Text>
               <Text style={styles.textMono}>{props.children}</Text>

@@ -46,8 +46,6 @@ export const uploadImage = async (
   var receivedImage = null;
   var receivedInfo = "";
 
-  console.log(`timeout=${timeout}`)
-
   const formData = new FormData();
   formData.append("file", uploadImageInfo);
   formData.append("args", JSON.stringify({ returnImg: willDownloadImage }));

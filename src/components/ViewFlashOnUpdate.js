@@ -8,6 +8,7 @@ const ViewFlashOnUpdate = (props) => {
   //const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;
   const { theme } = props;
   const { colors } = theme;
+  const { backgroundColor = colors.background } = props.style;
 
   const trigger = props.trigger;
   const condition = props.condition;
@@ -15,7 +16,7 @@ const ViewFlashOnUpdate = (props) => {
   const animatedValueInfoBackground = useRef(new Animated.Value(0)).current;
   const infoBackground = animatedValueInfoBackground.interpolate({
     inputRange: [0, 1],
-    outputRange: [colors.background, colors.notification],
+    outputRange: [backgroundColor, colors.notification],
   });
 
   const [flashEnabled, setFlashEnabled] = useState(false);
@@ -29,7 +30,7 @@ const ViewFlashOnUpdate = (props) => {
   }, [trigger]);
 
   return (
-    <Animated.View style={[{ backgroundColor: infoBackground }, props.style]}>
+    <Animated.View style={[props.style, { backgroundColor: infoBackground }]}>
       {props.children}
     </Animated.View>
   );

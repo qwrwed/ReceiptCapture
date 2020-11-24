@@ -39,7 +39,7 @@ const App = () => {
 
   return (
     <PaperProvider theme={theme}>
-      <AppStatusBar barStyle="light" style={{ backgroundColor: "#F00" }} />
+      <AppStatusBar barStyle="light" backgroundColor="#0005" />
       <NavigationContainer theme={theme}>
         <Stack.Navigator>
           <Stack.Screen

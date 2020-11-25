@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useHeaderHeight } from "@react-navigation/stack";
 import color from "color";
 import React, { useEffect, useState, useRef } from "react";
-import { View, ScrollView, Dimensions } from "react-native";
+import { View, ScrollView, Dimensions, Animated } from "react-native";
 import {
   withTheme,
   Text,
@@ -17,7 +17,7 @@ import CodeWithModal from "../components/CodeWithModal";
 import ImageWithModal from "../components/ImageWithModal";
 import ViewFlashOnUpdate from "../components/ViewFlashOnUpdate";
 import { styles } from "../styles";
-import { pickImage, takeImage, uploadImage } from "../utils";
+import { pickImage, takeImage, uploadImage, fadeTo } from "../utils";
 import LoadingScreen from "./Loading";
 
 const SHOW_CONFIG = true;
@@ -57,8 +57,18 @@ const HomeScreen = (props) => {
     })();
   }, []);
 
+  useEffect(() => {
+    fadeTo(animatedValueDownImgWidth, willDownloadImage * 1, 1000);
+  }, [willDownloadImage]);
+
   const scrollViewRef = useRef();
   const screenHeight = Dimensions.get("window").height - useHeaderHeight();
+
+  const animatedValueDownImgWidth = useRef(new Animated.Value(0)).current;
+  const downImgWidth = animatedValueDownImgWidth.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
 
   var modalButtonColor = theme.colors.primary;
   modalButtonColor = theme.dark
@@ -97,16 +107,17 @@ const HomeScreen = (props) => {
                 }}
                 uri={uploadImageInfo.uri}
               />
-              <ImageWithModal
-                style={{
-                  flex: 1,
-                  //width: "50%",
-                  backgroundColor: props.theme.colors.surface,
-                  borderRadius: props.theme.roundness,
-                  marginLeft: 2,
-                }}
-                uri={receivedImage.uri}
-              />
+              <Animated.View style={{ flex: downImgWidth }}>
+                <ImageWithModal
+                  style={{
+                    //width: "50%",
+                    backgroundColor: props.theme.colors.surface,
+                    borderRadius: props.theme.roundness,
+                    marginLeft: 2,
+                  }}
+                  uri={receivedImage.uri}
+                />
+              </Animated.View>
             </View>
 
             <ViewFlashOnUpdate
@@ -180,7 +191,7 @@ const HomeScreen = (props) => {
                       timeout.num
                     );
                     setReceivedInfo(response.receivedInfo);
-                    if (willDownloadImage) {
+                    if (willDownloadImage && response.receivedImage !== null) {
                       setReceivedImage({
                         uri: `data:image/gif;base64,${response.receivedImage}`,
                       });

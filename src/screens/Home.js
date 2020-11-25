@@ -1,8 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useHeaderHeight } from "@react-navigation/stack";
+import color from "color";
 import React, { useEffect, useState, useRef } from "react";
-import { View, Alert, ScrollView, Dimensions } from "react-native";
-import { withTheme, Text, TextInput } from "react-native-paper";
+import { View, ScrollView, Dimensions } from "react-native";
+import {
+  withTheme,
+  Text,
+  TextInput,
+  Modal,
+  Portal,
+  Button,
+} from "react-native-paper";
 
 import AppButton from "../components/AppButton";
 import CodeWithModal from "../components/CodeWithModal";
@@ -32,6 +40,7 @@ const HomeScreen = (props) => {
   const [receivedInfo, setReceivedInfo] = useState("(No info received yet)");
   const [isLoading, setIsLoading] = useState(false);
   const [willDownloadImage, setWillDownloadImage] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
 
   const [serverAddress, setServerAddress] = useState(null);
   const [timeout, setTimeout] = useState(null);
@@ -50,6 +59,11 @@ const HomeScreen = (props) => {
 
   const scrollViewRef = useRef();
   const screenHeight = Dimensions.get("window").height - useHeaderHeight();
+
+  var modalButtonColor = theme.colors.primary;
+  modalButtonColor = theme.dark
+    ? color(modalButtonColor).lighten(0.7).string()
+    : modalButtonColor;
 
   if (SHOW_CONFIG && (timeout === null || serverAddress === null)) {
     return <LoadingScreen />;
@@ -187,18 +201,56 @@ const HomeScreen = (props) => {
               <AppButton
                 icon="eraser"
                 title="Clear all"
+                //disabled={uploadImageInfo.uri === null}
                 onPress={() => {
-                  Alert.alert(
-                    "Clear all?",
-                    "Are you sure you want to clear all selected and received items?",
-                    [
-                      {
-                        text: "Cancel",
-                        style: "cancel",
-                      },
-                      {
-                        text: "Clear",
-                        onPress: () => {
+                  setShowClearModal(true);
+                }}
+              />
+              <Portal>
+                <Modal
+                  visible={showClearModal}
+                  onDismiss={() => setShowClearModal(false)}
+                  contentContainerStyle={{
+                    backgroundColor: props.theme.colors.background,
+                    width: "85%",
+                    alignSelf: "center",
+                    borderRadius: props.theme.roundness,
+                  }}
+                >
+                  <View
+                    style={{
+                      backgroundColor: props.theme.colors.surface,
+                      padding: 20,
+                      borderRadius: props.theme.roundness,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: 20,
+                        fontFamily: "sans-serif-light",
+                      }}
+                    >
+                      Clear all?
+                    </Text>
+                    <Text style={{ fontSize: 16 }}>
+                      Are you sure you want to clear all selected and received
+                      items?
+                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <Button
+                        onPress={() => setShowClearModal(false)}
+                        color={modalButtonColor}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onPress={() => {
                           setuploadImageInfo({
                             uri: null,
                             name: null,
@@ -206,12 +258,16 @@ const HomeScreen = (props) => {
                           });
                           setReceivedImage({ uri: null });
                           setReceivedInfo("(No info received yet)");
-                        },
-                      },
-                    ]
-                  );
-                }}
-              />
+                          setShowClearModal(false);
+                        }}
+                        color={modalButtonColor}
+                      >
+                        Clear
+                      </Button>
+                    </View>
+                  </View>
+                </Modal>
+              </Portal>
             </View>
             {SHOW_CONFIG && (
               <View style={{ flexDirection: "row" }}>

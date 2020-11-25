@@ -58,16 +58,23 @@ const HomeScreen = (props) => {
   }, []);
 
   useEffect(() => {
-    fadeTo(animatedValueDownImgWidth, willDownloadImage * 1, 1000);
+    fadeTo(animatedValueDownImgWidth, +willDownloadImage, 1000);
   }, [willDownloadImage]);
 
   const scrollViewRef = useRef();
   const screenHeight = Dimensions.get("window").height - useHeaderHeight();
 
+  const isFlexRow = true;
+
   const animatedValueDownImgWidth = useRef(new Animated.Value(0)).current;
   const downImgWidth = animatedValueDownImgWidth.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 1],
+    outputRange: ["0%", "50%"],
+  });
+
+  const downImgMargin = animatedValueDownImgWidth.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 4],
   });
 
   var modalButtonColor = theme.colors.primary;
@@ -89,11 +96,17 @@ const HomeScreen = (props) => {
           ref={scrollViewRef}
           onLayout={() => scrollViewRef.current.scrollToEnd({ animated: true })}
         >
-          <View style={{ flex: 1, marginVertical: 8 }}>
+          <View
+            style={{
+              flex: 1,
+              marginTop: 8,
+              flexDirection: isFlexRow ? "row" : "column",
+            }}
+          >
             <View
               style={{
-                height: "50%",
-                flexDirection: "row",
+                flex: 1,
+                flexDirection: isFlexRow ? "column" : "row",
                 marginVertical: 2,
               }}
             >
@@ -103,17 +116,22 @@ const HomeScreen = (props) => {
                   //width: "50%",
                   backgroundColor: props.theme.colors.surface,
                   borderRadius: props.theme.roundness,
-                  marginRight: 2,
+                  //marginRight: 2,
                 }}
                 uri={uploadImageInfo.uri}
               />
-              <Animated.View style={{ flex: downImgWidth }}>
+              <Animated.View
+                style={{
+                  height: isFlexRow ? downImgWidth : null,
+                  width: isFlexRow ? null : downImgWidth,
+                  marginTop: isFlexRow ? downImgMargin : null,
+                  marginLeft: isFlexRow ? null : downImgMargin,
+                }}
+              >
                 <ImageWithModal
                   style={{
-                    //width: "50%",
                     backgroundColor: props.theme.colors.surface,
                     borderRadius: props.theme.roundness,
-                    marginLeft: 2,
                   }}
                   uri={receivedImage.uri}
                 />
@@ -122,8 +140,11 @@ const HomeScreen = (props) => {
 
             <ViewFlashOnUpdate
               style={{
-                height: "50%",
+                height: isFlexRow ? null : "50%",
+                width: isFlexRow ? "50%" : null,
                 marginVertical: 2,
+                marginLeft: isFlexRow ? 4 : null,
+                marginRight: 0,
                 borderRadius: theme.roundness,
                 backgroundColor: props.theme.colors.surface,
               }}

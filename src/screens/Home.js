@@ -41,6 +41,7 @@ const HomeScreen = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [willDownloadImage, setWillDownloadImage] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const [serverAddress, setServerAddress] = useState(null);
   const [timeout, setTimeout] = useState(null);
@@ -64,7 +65,7 @@ const HomeScreen = (props) => {
   const scrollViewRef = useRef();
   const screenHeight = Dimensions.get("window").height - useHeaderHeight();
 
-  const isFlexRow = true;
+  const isFlexRow = false;
 
   const animatedValueDownImgWidth = useRef(new Animated.Value(0)).current;
   const downImgWidth = animatedValueDownImgWidth.interpolate({
@@ -176,25 +177,66 @@ const HomeScreen = (props) => {
             </ViewFlashOnUpdate>
             <View>
               <AppButton
-                icon="camera"
-                title="Take Photo"
-                onPress={async () => {
-                  const info = await takeImage();
-                  if (info !== null) {
-                    setuploadImageInfo(info);
-                  }
-                }}
+                icon="camera-image"
+                title="Add Photo"
+                onPress={() => setShowAddModal(true)}
               />
-              <AppButton
-                icon="folder-image"
-                title="Select Photo"
-                onPress={async () => {
-                  const info = await pickImage();
-                  if (info !== null) {
-                    setuploadImageInfo(info);
-                  }
-                }}
-              />
+              <Portal>
+                <Modal
+                  visible={showAddModal}
+                  contentContainerStyle={{
+                    backgroundColor: props.theme.colors.background,
+                    alignSelf: "center",
+                    borderRadius: props.theme.roundness,
+                  }}
+                  onDismiss={() => setShowAddModal(false)}
+                >
+                  <View
+                    style={{
+                      backgroundColor: props.theme.colors.surface,
+                      padding: 20,
+                      borderRadius: props.theme.roundness,
+                    }}
+                  >
+                    <Button
+                      color={modalButtonColor}
+                      style={{ alignSelf: "stretch" }}
+                      labelStyle={{ fontSize: 16 }}
+                      onPress={async () => {
+                        setShowAddModal(false);
+                        const info = await takeImage();
+                        if (info !== null) {
+                          setuploadImageInfo(info);
+                        }
+                      }}
+                    >
+                      Take Photo
+                    </Button>
+                    <Button
+                      color={modalButtonColor}
+                      style={{ margin: 16, alignSelf: "stretch" }}
+                      labelStyle={{ fontSize: 16 }}
+                      onPress={async () => {
+                        setShowAddModal(false);
+                        const info = await pickImage();
+                        if (info !== null) {
+                          setuploadImageInfo(info);
+                        }
+                      }}
+                    >
+                      Select Photo
+                    </Button>
+                    <Button
+                      color={modalButtonColor}
+                      style={{ alignSelf: "stretch" }}
+                      labelStyle={{ fontSize: 16 }}
+                      onPress={() => setShowAddModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </View>
+                </Modal>
+              </Portal>
               <View style={{ flexDirection: "row" }}>
                 <AppButton
                   icon="upload"

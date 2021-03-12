@@ -21,12 +21,13 @@ import { pickImage, takeImage, uploadImage, fadeTo } from "../utils";
 import LoadingScreen from "./Loading";
 
 const SHOW_CONFIG = true;
-const SERVER_ADDRESS = "http://0.0.0.0";
-const SERVER_PORT = "0000";
+const DEFAULT_ADDRESS = "https://qrgk-fyp.nw.r.appspot.com/";
+const CUSTOM_ADDRESS = "http://192.168.0.8";
+const CUSTOM_PORT = "5000";
 const CONNECTION_TIMEOUT = 30;
 
-const SERVER_ADDRESS_FULL =
-  SERVER_ADDRESS + (SERVER_PORT ? `:${SERVER_PORT}` : "");
+const CUSTOM_ADDRESS_FULL =
+  CUSTOM_ADDRESS + (CUSTOM_PORT ? `:${CUSTOM_PORT}` : "");
 
 const HomeScreen = (props) => {
   const theme = props.theme;
@@ -42,21 +43,32 @@ const HomeScreen = (props) => {
   const [willDownloadImage, setWillDownloadImage] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [useCustomAddress, setUseCustomAddress] = useState(SHOW_CONFIG);
 
   const [serverAddress, setServerAddress] = useState(null);
   const [timeout, setTimeout] = useState(null);
 
+  //only runs on first render:
   useEffect(() => {
     (async () => {
-      var address = await AsyncStorage.getItem("@serverAddress");
-      address = address === null ? SERVER_ADDRESS_FULL : address;
-      setServerAddress(address);
       var timeoutText = await AsyncStorage.getItem("@timeout");
       timeoutText =
         timeoutText === null ? CONNECTION_TIMEOUT.toString() : timeoutText;
       setTimeout({ text: timeoutText, num: parseInt(timeoutText, 10) });
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (useCustomAddress) {
+        var address = await AsyncStorage.getItem("@customAddress");
+        address = address === null ? CUSTOM_ADDRESS_FULL : address;
+      } else {
+        address = DEFAULT_ADDRESS;
+      }
+      setServerAddress(address);
+    })();
+  }, [useCustomAddress]);
 
   useEffect(() => {
     fadeTo(animatedValueDownImgWidth, +willDownloadImage, 1000);
@@ -345,16 +357,25 @@ const HomeScreen = (props) => {
             </View>
             {SHOW_CONFIG && (
               <View style={{ flexDirection: "row" }}>
+                <AppButton
+                  icon={useCustomAddress ? "server" : "google-cloud"}
+                  style={{ flex: 1, marginTop: 6, marginRight: 2 }}
+                  compact={true}
+                  onPress={() => {
+                    setUseCustomAddress(!useCustomAddress);
+                  }}
+                />
                 <TextInput
                   label="Server/Port"
                   value={serverAddress}
                   mode="outlined"
+                  disabled={!useCustomAddress}
                   onChangeText={(text) => setServerAddress(text)}
                   onEndEditing={async (e) => {
                     const text = e.nativeEvent.text;
-                    await AsyncStorage.setItem("@serverAddress", text);
+                    await AsyncStorage.setItem("@customAddress", text);
                   }}
-                  style={{ flex: 4, marginRight: 2 }}
+                  style={{ flex: 4, marginLeft: 2, marginRight: 2 }}
                 />
                 <TextInput
                   label="Timeout"

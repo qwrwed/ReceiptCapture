@@ -2,7 +2,7 @@
   "expo": {
     "name": "Receipt Capture",
     "slug": "ReceiptCapture",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./src/assets/adaptive-icon.png",
     "splash": {

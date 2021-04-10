@@ -32,7 +32,7 @@ const App = () => {
       notification: "#0AA",
       primary: "#6200ee",
       surface: "#7773",
-      //primary: isPreferDark ? "magenta" : "orange",
+      // primary: isPreferDark ? "magenta" : "orange",
     },
   };
 
@@ -51,7 +51,7 @@ const App = () => {
               },
               headerTintColor: "#FFF",
               headerTitleStyle: {
-                //fontWeight: "bold",
+                // fontWeight: "bold",
               },
             }}
           />

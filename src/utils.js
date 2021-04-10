@@ -1,23 +1,13 @@
 import * as ImagePicker from "expo-image-picker";
 import { Animated } from "react-native";
 
-//https://stackoverflow.com/a/55724273
-export const padding = (a, b, c, d) => {
-  return {
-    paddingTop: a,
-    paddingRight: b ? b : a,
-    paddingBottom: c ? c : a,
-    paddingLeft: d ? d : b ? b : a,
-  };
-};
-
-export const pickImage = async () => {
-  return await getImage(ImagePicker.launchImageLibraryAsync);
-};
-
-export const takeImage = async () => {
-  return await getImage(ImagePicker.launchCameraAsync);
-};
+// https://stackoverflow.com/a/55724273
+export const padding = (a, b, c, d) => ({
+  paddingTop: a,
+  paddingRight: b || a,
+  paddingBottom: c || a,
+  paddingLeft: d || (b || a),
+});
 
 const getImage = async (launcherAsync) => {
   const result = await launcherAsync({
@@ -37,14 +27,17 @@ const getImage = async (launcherAsync) => {
   return uploadImageInfo;
 };
 
+export const pickImage = async () => getImage(ImagePicker.launchImageLibraryAsync);
+export const takeImage = async () => getImage(ImagePicker.launchCameraAsync);
+
 export const uploadImage = async (
   uploadImageInfo,
   urlRoot,
   willDownloadImage = false,
-  timeout = 20
+  timeout = 20,
 ) => {
-  var receivedImage = null;
-  var receivedInfo = "";
+  let receivedImage = null;
+  let receivedInfo = "";
 
   const formData = new FormData();
   formData.append("file", uploadImageInfo);
@@ -57,7 +50,7 @@ export const uploadImage = async (
   const controller = new AbortController();
   setTimeout(() => controller.abort(), timeout * 1000);
   try {
-    var response = await fetch(urlRoot + "\\upload", {
+    const response = await fetch(`${urlRoot}\\upload`, {
       method: "POST",
       body: formData,
       headers: {
@@ -76,8 +69,8 @@ export const uploadImage = async (
         throw { message: json.message, status: response.status };
       } catch (err) {
         if (
-          err.message.startsWith("JSON Parse error:") &&
-          response.status === 500
+          err.message.startsWith("JSON Parse error:")
+          && response.status === 500
         ) {
           throw {
             name: "JSONParseError",
@@ -90,7 +83,7 @@ export const uploadImage = async (
       }
     }
   } catch (err) {
-    var errorMessage;
+    let errorMessage;
     receivedInfo += "Operation failed: ";
     if (typeof err.status !== "undefined") {
       errorMessage = `${err.status} ${err.message}`;
@@ -125,22 +118,17 @@ export const fadeInThenOut = (
   min = 0,
   max = 1,
   inTime = 1000,
-  outTime = 1000
+  outTime = 1000,
 ) => {
   fadeTo(animatedValue, max, inTime, () => fadeTo(animatedValue, min, outTime));
 };
 
 // https://stackoverflow.com/a/57401891
-export const adjustColor = (color, amount) => {
-  return (
-    "#" +
+export const adjustColor = (color, amount) => (
+  `#${
     color
       .replace(/^#/, "")
-      .replace(/../g, (color) =>
-        (
-          "0" +
-          Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)
-        ).substr(-2)
-      )
-  );
-};
+      .replace(/../g, (color_) => (
+        `0${Math.min(255, Math.max(0, parseInt(color_, 16) + amount)).toString(16)}`
+      ).substr(-2))}`
+);

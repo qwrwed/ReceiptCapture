@@ -1,4 +1,4 @@
-//import { MaterialCommunityIcons } from "@ref/vector-icons";
+// import { MaterialCommunityIcons } from "@ref/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import color from "color";
 import React from "react";
@@ -10,7 +10,8 @@ const AppButton = (props) => {
   const { iconSize = 24 } = { props };
   const { color: buttonColor, disabled, theme, mode = "contained" } = props;
   const { colors } = theme;
-  var textColor, backgroundColor;
+  let textColor;
+  let backgroundColor;
 
   if (mode === "contained") {
     if (disabled) {
@@ -33,16 +34,9 @@ const AppButton = (props) => {
       .rgb()
       .string();
   } else if (mode === "contained") {
-    let isDark;
-
-    if (typeof dark === "boolean") {
-      isDark = dark;
-    } else {
-      isDark =
-        backgroundColor === "transparent"
-          ? false
-          : !color(backgroundColor).isLight();
-    }
+    const isDark = backgroundColor === "transparent"
+      ? false
+      : !color(backgroundColor).isLight();
 
     textColor = isDark ? "#FFF" : "#000";
   } else if (buttonColor) {

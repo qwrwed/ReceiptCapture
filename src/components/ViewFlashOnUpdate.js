@@ -5,13 +5,12 @@ import { withTheme } from "react-native-paper";
 import { fadeInThenOut } from "../utils";
 
 const ViewFlashOnUpdate = (props) => {
-  //const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;
+  // const theme = useColorScheme() === "dark" ? DarkTheme : DefaultTheme;
   const { theme } = props;
   const { colors } = theme;
   const { backgroundColor = colors.background } = props.style;
 
-  const trigger = props.trigger;
-  const condition = props.condition;
+  const { trigger, condition } = props;
 
   const animatedValueInfoBackground = useRef(new Animated.Value(0)).current;
   const infoBackground = animatedValueInfoBackground.interpolate({

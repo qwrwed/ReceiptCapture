@@ -26,11 +26,10 @@ const CUSTOM_ADDRESS = "http://192.168.0.8";
 const CUSTOM_PORT = "5000";
 const CONNECTION_TIMEOUT = 30;
 
-const CUSTOM_ADDRESS_FULL =
-  CUSTOM_ADDRESS + (CUSTOM_PORT ? `:${CUSTOM_PORT}` : "");
+const CUSTOM_ADDRESS_FULL = CUSTOM_ADDRESS + (CUSTOM_PORT ? `:${CUSTOM_PORT}` : "");
 
 const HomeScreen = (props) => {
-  const theme = props.theme;
+  const { theme } = props;
 
   const [uploadImageInfo, setuploadImageInfo] = useState({
     uri: null,
@@ -48,20 +47,20 @@ const HomeScreen = (props) => {
   const [serverAddress, setServerAddress] = useState(null);
   const [timeout, setTimeout] = useState(null);
 
-  //only runs on first render:
+  // only runs on first render:
   useEffect(() => {
     (async () => {
-      var timeoutText = await AsyncStorage.getItem("@timeout");
-      timeoutText =
-        timeoutText === null ? CONNECTION_TIMEOUT.toString() : timeoutText;
+      let timeoutText = await AsyncStorage.getItem("@timeout");
+      timeoutText = timeoutText === null ? CONNECTION_TIMEOUT.toString() : timeoutText;
       setTimeout({ text: timeoutText, num: parseInt(timeoutText, 10) });
     })();
   }, []);
 
   useEffect(() => {
     (async () => {
+      let address;
       if (useCustomAddress) {
-        var address = await AsyncStorage.getItem("@customAddress");
+        address = await AsyncStorage.getItem("@customAddress");
         address = address === null ? CUSTOM_ADDRESS_FULL : address;
       } else {
         address = DEFAULT_ADDRESS;
@@ -69,10 +68,6 @@ const HomeScreen = (props) => {
       setServerAddress(address);
     })();
   }, [useCustomAddress]);
-
-  useEffect(() => {
-    fadeTo(animatedValueDownImgWidth, +willDownloadImage, 1000);
-  }, [willDownloadImage]);
 
   const scrollViewRef = useRef();
   const screenHeight = Dimensions.get("window").height - useHeaderHeight();
@@ -85,327 +80,330 @@ const HomeScreen = (props) => {
     outputRange: ["0%", "50%"],
   });
 
+  useEffect(() => {
+    fadeTo(animatedValueDownImgWidth, +willDownloadImage, 1000);
+  }, [willDownloadImage]);
+
   const downImgMargin = animatedValueDownImgWidth.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 4],
   });
 
-  var modalButtonColor = theme.colors.primary;
+  let modalButtonColor = theme.colors.primary;
   modalButtonColor = theme.dark
     ? color(modalButtonColor).lighten(0.7).string()
     : modalButtonColor;
 
   if (SHOW_CONFIG && (timeout === null || serverAddress === null)) {
     return <LoadingScreen />;
-  } else {
-    return (
-      <View style={{ flex: 1 }}>
-        <ScrollView
-          contentContainerStyle={{
-            height: screenHeight,
-            marginHorizontal: 10,
-            paddingBottom: 8,
+  }
+  return (
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{
+          height: screenHeight,
+          marginHorizontal: 10,
+          paddingBottom: 8,
+        }}
+        ref={scrollViewRef}
+        onLayout={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+      >
+        <View
+          style={{
+            flex: 1,
+            marginTop: 8,
+            flexDirection: isFlexRow ? "row" : "column",
           }}
-          ref={scrollViewRef}
-          onLayout={() => scrollViewRef.current.scrollToEnd({ animated: true })}
         >
           <View
             style={{
               flex: 1,
-              marginTop: 8,
-              flexDirection: isFlexRow ? "row" : "column",
+              flexDirection: isFlexRow ? "column" : "row",
+              marginVertical: 2,
             }}
           >
-            <View
+            <ImageWithModal
               style={{
                 flex: 1,
-                flexDirection: isFlexRow ? "column" : "row",
-                marginVertical: 2,
+                // width: "50%",
+                backgroundColor: props.theme.colors.surface,
+                borderRadius: props.theme.roundness,
+                // marginRight: 2,
+              }}
+              uri={uploadImageInfo.uri}
+            />
+            <Animated.View
+              style={{
+                height: isFlexRow ? downImgWidth : null,
+                width: isFlexRow ? null : downImgWidth,
+                marginTop: isFlexRow ? downImgMargin : null,
+                marginLeft: isFlexRow ? null : downImgMargin,
               }}
             >
               <ImageWithModal
                 style={{
-                  flex: 1,
-                  //width: "50%",
                   backgroundColor: props.theme.colors.surface,
                   borderRadius: props.theme.roundness,
-                  //marginRight: 2,
                 }}
-                uri={uploadImageInfo.uri}
+                uri={receivedImage.uri}
               />
-              <Animated.View
-                style={{
-                  height: isFlexRow ? downImgWidth : null,
-                  width: isFlexRow ? null : downImgWidth,
-                  marginTop: isFlexRow ? downImgMargin : null,
-                  marginLeft: isFlexRow ? null : downImgMargin,
-                }}
-              >
-                <ImageWithModal
-                  style={{
-                    backgroundColor: props.theme.colors.surface,
-                    borderRadius: props.theme.roundness,
-                  }}
-                  uri={receivedImage.uri}
-                />
-              </Animated.View>
-            </View>
-
-            <ViewFlashOnUpdate
-              style={{
-                height: isFlexRow ? null : "50%",
-                width: isFlexRow ? "50%" : null,
-                marginVertical: 2,
-                marginLeft: isFlexRow ? 4 : null,
-                marginRight: 0,
-                borderRadius: theme.roundness,
-                backgroundColor: props.theme.colors.surface,
-              }}
-              trigger={isLoading}
-              condition={(trigger) => !trigger}
-            >
-              <CodeWithModal title="Received Info">
-                {receivedInfo}
-              </CodeWithModal>
-            </ViewFlashOnUpdate>
+            </Animated.View>
           </View>
 
+          <ViewFlashOnUpdate
+            style={{
+              height: isFlexRow ? null : "50%",
+              width: isFlexRow ? "50%" : null,
+              marginVertical: 2,
+              marginLeft: isFlexRow ? 4 : null,
+              marginRight: 0,
+              borderRadius: theme.roundness,
+              backgroundColor: props.theme.colors.surface,
+            }}
+            trigger={isLoading}
+            condition={(trigger) => !trigger}
+          >
+            <CodeWithModal title="Received Info">
+              {receivedInfo}
+            </CodeWithModal>
+          </ViewFlashOnUpdate>
+        </View>
+
+        <View>
+          <ViewFlashOnUpdate
+            style={{
+              marginVertical: 2,
+              paddingVertical: 2,
+              paddingHorizontal: 5,
+              borderRadius: theme.roundness,
+              backgroundColor: props.theme.colors.surface,
+            }}
+            trigger={willDownloadImage}
+            condition={() => true}
+          >
+            <Text style={styles.text}>
+              Operation: Get text{" "}
+              {willDownloadImage ? "and processed image" : "only"}
+            </Text>
+          </ViewFlashOnUpdate>
           <View>
-            <ViewFlashOnUpdate
-              style={{
-                marginVertical: 2,
-                paddingVertical: 2,
-                paddingHorizontal: 5,
-                borderRadius: theme.roundness,
-                backgroundColor: props.theme.colors.surface,
-              }}
-              trigger={willDownloadImage}
-              condition={() => true}
-            >
-              <Text style={styles.text}>
-                Operation: Get text{" "}
-                {willDownloadImage ? "and processed image" : "only"}
-              </Text>
-            </ViewFlashOnUpdate>
-            <View>
-              <AppButton
-                icon="camera-image"
-                title="Add Photo"
-                onPress={() => setShowAddModal(true)}
-              />
-              <Portal>
-                <Modal
-                  visible={showAddModal}
-                  contentContainerStyle={{
-                    backgroundColor: props.theme.colors.background,
-                    alignSelf: "center",
+            <AppButton
+              icon="camera-image"
+              title="Add Photo"
+              onPress={() => setShowAddModal(true)}
+            />
+            <Portal>
+              <Modal
+                visible={showAddModal}
+                contentContainerStyle={{
+                  backgroundColor: props.theme.colors.background,
+                  alignSelf: "center",
+                  borderRadius: props.theme.roundness,
+                }}
+                onDismiss={() => setShowAddModal(false)}
+              >
+                <View
+                  style={{
+                    backgroundColor: props.theme.colors.surface,
+                    padding: 20,
                     borderRadius: props.theme.roundness,
                   }}
-                  onDismiss={() => setShowAddModal(false)}
                 >
+                  <Button
+                    color={modalButtonColor}
+                    style={{ alignSelf: "stretch" }}
+                    labelStyle={{ fontSize: 16 }}
+                    onPress={async () => {
+                      setShowAddModal(false);
+                      const info = await takeImage();
+                      if (info !== null) {
+                        setuploadImageInfo(info);
+                      }
+                    }}
+                  >
+                    Take Photo
+                  </Button>
+                  <Button
+                    color={modalButtonColor}
+                    style={{ margin: 16, alignSelf: "stretch" }}
+                    labelStyle={{ fontSize: 16 }}
+                    onPress={async () => {
+                      setShowAddModal(false);
+                      const info = await pickImage();
+                      if (info !== null) {
+                        setuploadImageInfo(info);
+                      }
+                    }}
+                  >
+                    Select Photo
+                  </Button>
+                  <Button
+                    color={modalButtonColor}
+                    style={{ alignSelf: "stretch" }}
+                    labelStyle={{ fontSize: 16 }}
+                    onPress={() => setShowAddModal(false)}
+                  >
+                    Cancel
+                  </Button>
+                </View>
+              </Modal>
+            </Portal>
+            <View style={{ flexDirection: "row" }}>
+              <AppButton
+                icon="upload"
+                title="Upload Photo"
+                style={{ flex: 3, marginRight: 2 }}
+                disabled={uploadImageInfo.uri === null || isLoading}
+                loading={isLoading}
+                onPress={async () => {
+                  setIsLoading(true);
+                  setReceivedImage({ uri: null });
+                  const response = await uploadImage(
+                    uploadImageInfo,
+                    serverAddress,
+                    willDownloadImage,
+                    timeout.num,
+                  );
+                  setReceivedInfo(response.receivedInfo);
+                  if (willDownloadImage && response.receivedImage !== null) {
+                    setReceivedImage({
+                      uri: `data:image/gif;base64,${response.receivedImage}`,
+                    });
+                  }
+                  setIsLoading(false);
+                }}
+              />
+              <AppButton
+                icon={willDownloadImage ? "download" : "download-off"}
+                compact={true}
+                style={{ flex: 1.2, marginLeft: 2 }}
+                onPress={async () => {
+                  setWillDownloadImage(!willDownloadImage);
+                }}
+                disabled={isLoading}
+              />
+            </View>
+            <AppButton
+              icon="eraser"
+              title="Clear all"
+              // disabled={uploadImageInfo.uri === null}
+              onPress={() => {
+                setShowClearModal(true);
+              }}
+            />
+            <Portal>
+              <Modal
+                visible={showClearModal}
+                onDismiss={() => setShowClearModal(false)}
+                contentContainerStyle={{
+                  backgroundColor: props.theme.colors.background,
+                  width: "85%",
+                  alignSelf: "center",
+                  borderRadius: props.theme.roundness,
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: props.theme.colors.surface,
+                    padding: 20,
+                    borderRadius: props.theme.roundness,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: 20,
+                      fontFamily: "sans-serif-light",
+                    }}
+                  >
+                    Clear all?
+                  </Text>
+                  <Text style={{ fontSize: 16 }}>
+                    Are you sure you want to clear all selected and received
+                    items?
+                  </Text>
                   <View
                     style={{
-                      backgroundColor: props.theme.colors.surface,
-                      padding: 20,
-                      borderRadius: props.theme.roundness,
+                      flexDirection: "row",
+                      justifyContent: "flex-end",
                     }}
                   >
                     <Button
+                      onPress={() => setShowClearModal(false)}
                       color={modalButtonColor}
-                      style={{ alignSelf: "stretch" }}
-                      labelStyle={{ fontSize: 16 }}
-                      onPress={async () => {
-                        setShowAddModal(false);
-                        const info = await takeImage();
-                        if (info !== null) {
-                          setuploadImageInfo(info);
-                        }
-                      }}
-                    >
-                      Take Photo
-                    </Button>
-                    <Button
-                      color={modalButtonColor}
-                      style={{ margin: 16, alignSelf: "stretch" }}
-                      labelStyle={{ fontSize: 16 }}
-                      onPress={async () => {
-                        setShowAddModal(false);
-                        const info = await pickImage();
-                        if (info !== null) {
-                          setuploadImageInfo(info);
-                        }
-                      }}
-                    >
-                      Select Photo
-                    </Button>
-                    <Button
-                      color={modalButtonColor}
-                      style={{ alignSelf: "stretch" }}
-                      labelStyle={{ fontSize: 16 }}
-                      onPress={() => setShowAddModal(false)}
                     >
                       Cancel
                     </Button>
-                  </View>
-                </Modal>
-              </Portal>
-              <View style={{ flexDirection: "row" }}>
-                <AppButton
-                  icon="upload"
-                  title="Upload Photo"
-                  style={{ flex: 3, marginRight: 2 }}
-                  disabled={uploadImageInfo.uri === null || isLoading}
-                  loading={isLoading}
-                  onPress={async () => {
-                    setIsLoading(true);
-                    setReceivedImage({ uri: null });
-                    const response = await uploadImage(
-                      uploadImageInfo,
-                      serverAddress,
-                      willDownloadImage,
-                      timeout.num
-                    );
-                    setReceivedInfo(response.receivedInfo);
-                    if (willDownloadImage && response.receivedImage !== null) {
-                      setReceivedImage({
-                        uri: `data:image/gif;base64,${response.receivedImage}`,
-                      });
-                    }
-                    setIsLoading(false);
-                  }}
-                />
-                <AppButton
-                  icon={willDownloadImage ? "download" : "download-off"}
-                  compact={true}
-                  style={{ flex: 1.2, marginLeft: 2 }}
-                  onPress={async () => {
-                    setWillDownloadImage(!willDownloadImage);
-                  }}
-                  disabled={isLoading}
-                />
-              </View>
-              <AppButton
-                icon="eraser"
-                title="Clear all"
-                //disabled={uploadImageInfo.uri === null}
-                onPress={() => {
-                  setShowClearModal(true);
-                }}
-              />
-              <Portal>
-                <Modal
-                  visible={showClearModal}
-                  onDismiss={() => setShowClearModal(false)}
-                  contentContainerStyle={{
-                    backgroundColor: props.theme.colors.background,
-                    width: "85%",
-                    alignSelf: "center",
-                    borderRadius: props.theme.roundness,
-                  }}
-                >
-                  <View
-                    style={{
-                      backgroundColor: props.theme.colors.surface,
-                      padding: 20,
-                      borderRadius: props.theme.roundness,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: 20,
-                        fontFamily: "sans-serif-light",
+                    <Button
+                      onPress={() => {
+                        setuploadImageInfo({
+                          uri: null,
+                          name: null,
+                          type: null,
+                        });
+                        setReceivedImage({ uri: null });
+                        setReceivedInfo("(No info received yet)");
+                        setShowClearModal(false);
                       }}
+                      color={modalButtonColor}
                     >
-                      Clear all?
-                    </Text>
-                    <Text style={{ fontSize: 16 }}>
-                      Are you sure you want to clear all selected and received
-                      items?
-                    </Text>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "flex-end",
-                      }}
-                    >
-                      <Button
-                        onPress={() => setShowClearModal(false)}
-                        color={modalButtonColor}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onPress={() => {
-                          setuploadImageInfo({
-                            uri: null,
-                            name: null,
-                            type: null,
-                          });
-                          setReceivedImage({ uri: null });
-                          setReceivedInfo("(No info received yet)");
-                          setShowClearModal(false);
-                        }}
-                        color={modalButtonColor}
-                      >
-                        Clear
-                      </Button>
-                    </View>
+                      Clear
+                    </Button>
                   </View>
-                </Modal>
-              </Portal>
-            </View>
-            {SHOW_CONFIG && (
-              <View style={{ flexDirection: "row" }}>
-                <AppButton
-                  icon={useCustomAddress ? "server" : "google-cloud"}
-                  style={{ flex: 1, marginTop: 6, marginRight: 2 }}
-                  compact={true}
-                  onPress={() => {
-                    setUseCustomAddress(!useCustomAddress);
-                  }}
-                />
-                <TextInput
-                  label="Server/Port"
-                  value={serverAddress}
-                  mode="outlined"
-                  disabled={!useCustomAddress}
-                  onChangeText={(text) => setServerAddress(text)}
-                  onEndEditing={async (e) => {
-                    const text = e.nativeEvent.text;
-                    await AsyncStorage.setItem("@customAddress", text);
-                  }}
-                  style={{ flex: 4, marginLeft: 2, marginRight: 2 }}
-                />
-                <TextInput
-                  label="Timeout"
-                  value={timeout.text}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  onChangeText={(text) => {
-                    setTimeout({
-                      ...timeout,
-                      text: text.replace(/[^0-9]/g, ""),
-                    });
-                  }}
-                  onEndEditing={async (e) => {
-                    var text = e.nativeEvent.text;
-                    var num = parseInt(text, 10);
-                    num = Number.isInteger(num) ? num : timeout.num;
-                    text = num.toString();
-                    setTimeout({ num, text });
-                    await AsyncStorage.setItem("@timeout", text);
-                  }}
-                  style={{ flex: 1.2, marginLeft: 2 }}
-                  right={<TextInput.Affix text="sec" />}
-                />
-              </View>
-            )}
+                </View>
+              </Modal>
+            </Portal>
           </View>
-        </ScrollView>
-      </View>
-    );
-  }
+          {SHOW_CONFIG && (
+          <View style={{ flexDirection: "row" }}>
+            <AppButton
+              icon={useCustomAddress ? "server" : "google-cloud"}
+              style={{ flex: 1, marginTop: 6, marginRight: 2 }}
+              compact={true}
+              onPress={() => {
+                setUseCustomAddress(!useCustomAddress);
+              }}
+            />
+            <TextInput
+              label="Server/Port"
+              value={serverAddress}
+              mode="outlined"
+              disabled={!useCustomAddress}
+              onChangeText={(text) => setServerAddress(text)}
+              onEndEditing={async (e) => {
+                const { text } = e.nativeEvent;
+                await AsyncStorage.setItem("@customAddress", text);
+              }}
+              style={{ flex: 4, marginLeft: 2, marginRight: 2 }}
+            />
+            <TextInput
+              label="Timeout"
+              value={timeout.text}
+              mode="outlined"
+              keyboardType="numeric"
+              onChangeText={(text) => {
+                setTimeout({
+                  ...timeout,
+                  text: text.replace(/[^0-9]/g, ""),
+                });
+              }}
+              onEndEditing={async (e) => {
+                let { text } = e.nativeEvent;
+                let num = parseInt(text, 10);
+                num = Number.isInteger(num) ? num : timeout.num;
+                text = num.toString();
+                setTimeout({ num, text });
+                await AsyncStorage.setItem("@timeout", text);
+              }}
+              style={{ flex: 1.2, marginLeft: 2 }}
+              right={<TextInput.Affix text="sec" />}
+            />
+          </View>
+          )}
+        </View>
+      </ScrollView>
+    </View>
+  );
 };
-//<Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}></Pressable>
+// <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}></Pressable>
 export default withTheme(HomeScreen);

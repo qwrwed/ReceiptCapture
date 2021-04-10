@@ -4,27 +4,25 @@ import "react-native-gesture-handler";
 
 import { styles } from "../styles";
 
-const AppScreenWrapper = (props) => {
-  return (
-    <View
-      style={[
-        { backgroundColor: props.theme.colors.background },
-        styles.container,
-        props.style,
-      ]}
+const AppScreenWrapper = (props) => (
+  <View
+    style={[
+      { backgroundColor: props.theme.colors.background },
+      styles.container,
+      props.style,
+    ]}
+  >
+    <ScrollView
+      style={{ width: "100%" }}
+      contentContainerStyle={{
+        flexGrow: 1,
+        justifyContent: "flex-end",
+        paddingVertical: 10,
+      }}
     >
-      <ScrollView
-        style={{ width: "100%" }}
-        contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: "flex-end",
-          paddingVertical: 10,
-        }}
-      >
-        {props.children}
-      </ScrollView>
-    </View>
-  );
-};
+      {props.children}
+    </ScrollView>
+  </View>
+);
 
 export default AppScreenWrapper;

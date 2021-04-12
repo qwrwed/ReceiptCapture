@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   NavigationContainer,
   DarkTheme as NavigationDarkTheme,
@@ -15,6 +16,7 @@ import {
 
 import AppStatusBar from "./src/components/AppStatusBar";
 import HomeScreen from "./src/screens/Home";
+import TestScreen from "./src/screens/Test";
 
 const DefaultTheme = merge(PaperDefaultTheme, NavigationDefaultTheme);
 const DarkTheme = merge(PaperDarkTheme, NavigationDarkTheme);
@@ -44,6 +46,7 @@ const App = () => {
           <Stack.Screen
             name="Home"
             component={HomeScreen}
+            // component={TestScreen}
             options={{
               title: "Receipt Capture",
               headerStyle: {

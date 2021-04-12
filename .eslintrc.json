@@ -30,6 +30,7 @@
         "import/prefer-default-export": "off",
         "no-throw-literal": "off",
         "no-alert": "off",
-        "no-console": "off"
+        "no-console": "off",
+        "no-mixed-operators": [2, {"allowSamePrecedence": true}]
     }
 }

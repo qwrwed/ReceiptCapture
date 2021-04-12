@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useHeaderHeight } from "@react-navigation/stack";
 import color from "color";
@@ -13,6 +14,7 @@ import {
 } from "react-native-paper";
 
 import AppButton from "../components/AppButton";
+import AppPieChart from "../components/AppPieChart";
 import CodeWithModal from "../components/CodeWithModal";
 import ImageWithModal from "../components/ImageWithModal";
 import ViewFlashOnUpdate from "../components/ViewFlashOnUpdate";
@@ -21,6 +23,7 @@ import { pickImage, takeImage, uploadImage, fadeTo } from "../utils";
 import LoadingScreen from "./Loading";
 
 const SHOW_CONFIG = true;
+
 const DEFAULT_ADDRESS = "https://qrgk-fyp.nw.r.appspot.com/";
 const CUSTOM_ADDRESS = "http://192.168.0.8";
 const CUSTOM_PORT = "5000";
@@ -28,16 +31,20 @@ const CONNECTION_TIMEOUT = 30;
 
 const CUSTOM_ADDRESS_FULL = CUSTOM_ADDRESS + (CUSTOM_PORT ? `:${CUSTOM_PORT}` : "");
 
+const uploadImageInfoTemplate = {
+  uri: null,
+  name: null,
+  type: null,
+};
+
 const HomeScreen = (props) => {
   const { theme } = props;
 
-  const [uploadImageInfo, setuploadImageInfo] = useState({
-    uri: null,
-    name: null,
-    type: null,
-  });
+  const [uploadImageInfo, setUploadImageInfo] = useState(uploadImageInfoTemplate);
   const [receivedImage, setReceivedImage] = useState({ uri: null });
-  const [receivedInfo, setReceivedInfo] = useState("(No info received yet)");
+  const [receivedSuccess, setReceivedSuccess] = useState(false);
+  // const [receivedInfo, setReceivedInfo] = useState("(No info received yet)");
+  const [receivedInfo, setReceivedInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [willDownloadImage, setWillDownloadImage] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);
@@ -50,9 +57,19 @@ const HomeScreen = (props) => {
   // only runs on first render:
   useEffect(() => {
     (async () => {
-      let timeoutText = await AsyncStorage.getItem("@timeout");
-      timeoutText = timeoutText === null ? CONNECTION_TIMEOUT.toString() : timeoutText;
+      const storedTimeoutText = await AsyncStorage.getItem("@timeout");
+      const timeoutText = storedTimeoutText === null
+        ? CONNECTION_TIMEOUT.toString() : storedTimeoutText;
       setTimeout({ text: timeoutText, num: parseInt(timeoutText, 10) });
+
+      const storedUploadImageInfo = await AsyncStorage.getItem("@uploadImageInfo");
+      if (storedUploadImageInfo !== null) {
+        setUploadImageInfo(JSON.parse(storedUploadImageInfo));
+      }
+      console.log("storedUploadImageInfo:");
+      console.log(storedUploadImageInfo);
+      console.log("typeof storedUploadImageInfo:");
+      console.log(typeof storedUploadImageInfo);
     })();
   }, []);
 
@@ -71,6 +88,7 @@ const HomeScreen = (props) => {
 
   const scrollViewRef = useRef();
   const screenHeight = Dimensions.get("window").height - useHeaderHeight();
+  const screenWidth = Dimensions.get("window").width;
 
   const isFlexRow = false;
 
@@ -94,6 +112,8 @@ const HomeScreen = (props) => {
     ? color(modalButtonColor).lighten(0.7).string()
     : modalButtonColor;
 
+  console.log(receivedInfo);
+
   if (SHOW_CONFIG && (timeout === null || serverAddress === null)) {
     return <LoadingScreen />;
   }
@@ -108,7 +128,7 @@ const HomeScreen = (props) => {
         ref={scrollViewRef}
         onLayout={() => scrollViewRef.current.scrollToEnd({ animated: true })}
       >
-        <View
+        {/* <View
           style={{
             flex: 1,
             marginTop: 8,
@@ -159,18 +179,22 @@ const HomeScreen = (props) => {
               marginRight: 0,
               borderRadius: theme.roundness,
               backgroundColor: props.theme.colors.surface,
+              // {receivedInfo}
             }}
             trigger={isLoading}
             condition={(trigger) => !trigger}
           >
             <CodeWithModal title="Received Info">
-              {receivedInfo}
+              Received Info Temporarily Removed
             </CodeWithModal>
           </ViewFlashOnUpdate>
-        </View>
+        </View> */}
+        <AppPieChart />
+        {/* {receivedSuccess && (
+        )} */}
 
         <View>
-          <ViewFlashOnUpdate
+          {/* <ViewFlashOnUpdate
             style={{
               marginVertical: 2,
               paddingVertical: 2,
@@ -185,7 +209,7 @@ const HomeScreen = (props) => {
               Operation: Get text{" "}
               {willDownloadImage ? "and processed image" : "only"}
             </Text>
-          </ViewFlashOnUpdate>
+          </ViewFlashOnUpdate> */}
           <View>
             <AppButton
               icon="camera-image"
@@ -217,7 +241,9 @@ const HomeScreen = (props) => {
                       setShowAddModal(false);
                       const info = await takeImage();
                       if (info !== null) {
-                        setuploadImageInfo(info);
+                        setUploadImageInfo(info);
+                        await AsyncStorage.setItem("@uploadImageInfo", JSON.stringify(info));
+                        console.log("SETTING @uploadImageInfo TO IMAGE CHOSEN BY takeImage()");
                       }
                     }}
                   >
@@ -231,7 +257,13 @@ const HomeScreen = (props) => {
                       setShowAddModal(false);
                       const info = await pickImage();
                       if (info !== null) {
-                        setuploadImageInfo(info);
+                        setUploadImageInfo(info);
+                        await AsyncStorage.setItem("@uploadImageInfo", JSON.stringify(info));
+                        console.log("info = ");
+                        console.log(info);
+                        console.log(JSON.stringify(info));
+                        console.log(await AsyncStorage.getItem("@uploadImageInfo"));
+                        console.log("SETTING @uploadImageInfo TO IMAGE CHOSEN BY pickImage()");
                       }
                     }}
                   >
@@ -256,6 +288,7 @@ const HomeScreen = (props) => {
                 disabled={uploadImageInfo.uri === null || isLoading}
                 loading={isLoading}
                 onPress={async () => {
+                  setReceivedSuccess(false);
                   setIsLoading(true);
                   setReceivedImage({ uri: null });
                   const response = await uploadImage(
@@ -264,6 +297,7 @@ const HomeScreen = (props) => {
                     willDownloadImage,
                     timeout.num,
                   );
+                  setReceivedSuccess(response.receivedSuccess);
                   setReceivedInfo(response.receivedInfo);
                   if (willDownloadImage && response.receivedImage !== null) {
                     setReceivedImage({
@@ -336,7 +370,7 @@ const HomeScreen = (props) => {
                     </Button>
                     <Button
                       onPress={() => {
-                        setuploadImageInfo({
+                        setUploadImageInfo({
                           uri: null,
                           name: null,
                           type: null,
@@ -344,6 +378,8 @@ const HomeScreen = (props) => {
                         setReceivedImage({ uri: null });
                         setReceivedInfo("(No info received yet)");
                         setShowClearModal(false);
+                        setUploadImageInfo(uploadImageInfoTemplate);
+                        AsyncStorage.setItem("@uploadImageInfo", null);
                       }}
                       color={modalButtonColor}
                     >
@@ -395,7 +431,7 @@ const HomeScreen = (props) => {
                 setTimeout({ num, text });
                 await AsyncStorage.setItem("@timeout", text);
               }}
-              style={{ flex: 1.2, marginLeft: 2 }}
+              style={{ flex: 1.5, marginLeft: 2 }}
               right={<TextInput.Affix text="sec" />}
             />
           </View>

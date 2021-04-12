@@ -9,10 +9,19 @@ export const padding = (a, b, c, d) => ({
   paddingLeft: d || (b || a),
 });
 
+const chartFieldsPie = [
+  { rawName: "nf_protein" },
+  { rawName: "nf_total_carbohydrate" },
+  { rawName: "nf_total_fat" },
+];
+
+// https://stackoverflow.com/a/32589289
+const titleCase = (str) => str.toLowerCase().split(" ").map((word) => word.charAt(0).toUpperCase() + word.substring(1)).join(" ");
+
 const getImage = async (launcherAsync) => {
   const result = await launcherAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: false,
+    allowsEditing: true,
   });
 
   if (result.cancelled) {
@@ -38,6 +47,7 @@ export const uploadImage = async (
 ) => {
   let receivedImage = null;
   let receivedInfo = "";
+  let success;
 
   const formData = new FormData();
   formData.append("file", uploadImageInfo);
@@ -62,7 +72,9 @@ export const uploadImage = async (
       const json = await response.json();
       receivedImage = json.image;
       receivedInfo = json.info;
+      success = true;
     } else {
+      success = false;
       const text = await response.text();
       try {
         const json = await JSON.parse(text);
@@ -102,7 +114,17 @@ export const uploadImage = async (
     // console.log(err);
     receivedInfo += errorMessage;
   }
-  return { receivedImage, receivedInfo };
+  console.log(receivedInfo);
+  const chartDataPie = chartFieldsPie.map(
+    (field) => ({
+      rawName: field.rawName,
+      quantity: receivedInfo[field.rawName],
+      name: titleCase(field.rawName.replace("nf_", "").replace("total_", "")),
+    }),
+  );
+  return { receivedImage, receivedInfo: chartDataPie, success };
+  // console.log(chartDataPie);
+  // return { receivedImage, receivedInfo };
 };
 
 export const fadeTo = (animatedValue, toValue, duration, callback) => {

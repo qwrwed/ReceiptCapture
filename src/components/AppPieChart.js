@@ -64,7 +64,7 @@ const AppPieChartSVG = ({ data, config }) => {
           y={labelCentroid[1]}
         >
           <RectText rectFill={sliceData.svg.fill} textAnchor="start">
-            {sliceData.percentage}%: {sliceData.label}
+            {`${sliceData.percentage}%: ${sliceData.label}`}
           </RectText>
         </G>
       </G>

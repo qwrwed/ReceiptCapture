@@ -14,30 +14,29 @@ const RectText = ({
   children,
   onPress,
 }) => {
-// const RectText = (props) => {
-  // const { pad = 10, rectFill = "grey", x = 0, y = 0 } = props;
-  const [layout, setLayout] = useState({});
+  const [layout, setLayout] = useState({ width: 0, height: 0, x: 0, y: 0 });
   const xOffset = {
     start: 0,
-    middle: 1,
-    end: 2,
+    middle: 0.5,
+    end: 1,
   };
   return (
-    <G x={x} y={y} onPress={onPress}>
+    <G x={x} y={y - (layout.height / 2)} onPress={onPress}>
       <Rect
-        x={typeof (layout?.width) !== "undefined" ? -((layout.width * xOffset[textAnchor]) + pad) * 0.5 : 0}
-        y={typeof (layout?.height) !== "undefined" ? -(layout.height + pad) * 0.75 : 0}
-        width={typeof (layout?.width) !== "undefined" ? layout.width + pad : 25}
-        height={typeof (layout?.height) !== "undefined" ? layout.height + pad : 50}
+        rx={3}
+        x={-(layout.width * xOffset[textAnchor]) - pad}
+        y={0 - pad}
+        width={layout.width + (pad * 2)}
+        height={layout.height + (pad * 2)}
         fill={rectFill}
       />
       <Text
         textAnchor={textAnchor}
-        // alignmentBaseline="middle"
+        alignmentBaseline="hanging"
         fill="white"
         fontSize={20}
-        stroke="black"
-        strokeWidth={0.6}
+        stroke="white"
+        strokeWidth={0}
         onLayout={({ nativeEvent: { layout: newLayout } }) => {
           if (newLayout.height === 0 || newLayout === 0) {
             return;

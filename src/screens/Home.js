@@ -37,6 +37,28 @@ const uploadImageInfoTemplate = {
   type: null,
 };
 
+const pieConfig = {
+  nf_protein: {
+    label: "Protein",
+    color: "#FF0000",
+  },
+  nf_total_carbohydrate: {
+    label: "Carbohydrates",
+    color: "#FFFF00",
+
+  },
+  nf_total_fat: {
+    label: "Fat",
+    color: "#FFFF00",
+  },
+};
+
+// const sampleData = {
+//   nf_protein: 54.98,
+//   nf_total_carbohydrate: 130.53,
+//   nf_total_fat: 41.37,
+// };
+
 const HomeScreen = (props) => {
   const { theme } = props;
 
@@ -66,10 +88,6 @@ const HomeScreen = (props) => {
       if (storedUploadImageInfo !== null) {
         setUploadImageInfo(JSON.parse(storedUploadImageInfo));
       }
-      console.log("storedUploadImageInfo:");
-      console.log(storedUploadImageInfo);
-      console.log("typeof storedUploadImageInfo:");
-      console.log(typeof storedUploadImageInfo);
     })();
   }, []);
 
@@ -111,8 +129,6 @@ const HomeScreen = (props) => {
   modalButtonColor = theme.dark
     ? color(modalButtonColor).lighten(0.7).string()
     : modalButtonColor;
-
-  console.log(receivedInfo);
 
   if (SHOW_CONFIG && (timeout === null || serverAddress === null)) {
     return <LoadingScreen />;
@@ -189,7 +205,9 @@ const HomeScreen = (props) => {
             </CodeWithModal>
           </ViewFlashOnUpdate>
         </View> */}
-        <AppPieChart />
+        <View style={{ flex: 1 }}>
+          {receivedInfo && <AppPieChart data={receivedInfo} config={pieConfig} />}
+        </View>
         {/* {receivedSuccess && (
         )} */}
 
@@ -243,7 +261,6 @@ const HomeScreen = (props) => {
                       if (info !== null) {
                         setUploadImageInfo(info);
                         await AsyncStorage.setItem("@uploadImageInfo", JSON.stringify(info));
-                        console.log("SETTING @uploadImageInfo TO IMAGE CHOSEN BY takeImage()");
                       }
                     }}
                   >
@@ -259,11 +276,6 @@ const HomeScreen = (props) => {
                       if (info !== null) {
                         setUploadImageInfo(info);
                         await AsyncStorage.setItem("@uploadImageInfo", JSON.stringify(info));
-                        console.log("info = ");
-                        console.log(info);
-                        console.log(JSON.stringify(info));
-                        console.log(await AsyncStorage.getItem("@uploadImageInfo"));
-                        console.log("SETTING @uploadImageInfo TO IMAGE CHOSEN BY pickImage()");
                       }
                     }}
                   >
@@ -297,7 +309,7 @@ const HomeScreen = (props) => {
                     willDownloadImage,
                     timeout.num,
                   );
-                  setReceivedSuccess(response.receivedSuccess);
+                  setReceivedSuccess(response.success);
                   setReceivedInfo(response.receivedInfo);
                   if (willDownloadImage && response.receivedImage !== null) {
                     setReceivedImage({

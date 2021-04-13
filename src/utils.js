@@ -9,14 +9,14 @@ export const padding = (a, b, c, d) => ({
   paddingLeft: d || (b || a),
 });
 
-const chartFieldsPie = [
-  { rawName: "nf_protein" },
-  { rawName: "nf_total_carbohydrate" },
-  { rawName: "nf_total_fat" },
-];
+// const chartFieldsPie = [
+//   { rawName: "nf_protein" },
+//   { rawName: "nf_total_carbohydrate" },
+//   { rawName: "nf_total_fat" },
+// ];
 
 // https://stackoverflow.com/a/32589289
-const titleCase = (str) => str.toLowerCase().split(" ").map((word) => word.charAt(0).toUpperCase() + word.substring(1)).join(" ");
+export const titleCase = (str) => str.toLowerCase().split(" ").map((word) => word.charAt(0).toUpperCase() + word.substring(1)).join(" ");
 
 const getImage = async (launcherAsync) => {
   const result = await launcherAsync({
@@ -39,28 +39,16 @@ const getImage = async (launcherAsync) => {
 export const pickImage = async () => getImage(ImagePicker.launchImageLibraryAsync);
 export const takeImage = async () => getImage(ImagePicker.launchCameraAsync);
 
-export const uploadImage = async (
-  uploadImageInfo,
-  urlRoot,
-  willDownloadImage = false,
-  timeout = 20,
-) => {
-  let receivedImage = null;
-  let receivedInfo = "";
-  let success;
-
+const postFile = async ({ url, file, args, timeout = 20 }) => {
   const formData = new FormData();
-  formData.append("file", uploadImageInfo);
-  formData.append("args", JSON.stringify({ returnImg: willDownloadImage }));
-  if (uploadImageInfo === null) {
-    receivedInfo = "No image attached!";
-    alert(receivedInfo);
-    return { receivedInfo, receivedImage };
-  }
+  formData.append("file", file);
+  formData.append("args", JSON.stringify(args));
+
   const controller = new AbortController();
   setTimeout(() => controller.abort(), timeout * 1000);
+
   try {
-    const response = await fetch(`${urlRoot}\\upload`, {
+    const response = await fetch(url, {
       method: "POST",
       body: formData,
       headers: {
@@ -69,34 +57,30 @@ export const uploadImage = async (
       signal: controller.signal,
     });
     if (response.ok) {
-      const json = await response.json();
-      receivedImage = json.image;
-      receivedInfo = json.info;
-      success = true;
-    } else {
-      success = false;
-      const text = await response.text();
-      try {
-        const json = await JSON.parse(text);
-        throw { message: json.message, status: response.status };
-      } catch (err) {
-        if (
-          err.message.startsWith("JSON Parse error:")
+      const responseJson = await response.json();
+      return { success: true, responseJson };
+    } // else:
+    const text = await response.text();
+    try {
+      const json = await JSON.parse(text);
+      throw { message: json.message, status: response.status };
+    } catch (err) {
+      if (
+        err.message.startsWith("JSON Parse error:")
           && response.status === 500
-        ) {
-          throw {
-            name: "JSONParseError",
-            message: "Internal Server Error",
-            status: response.status,
-          };
-        } else {
-          throw err;
-        }
+      ) {
+        throw {
+          name: "JSONParseError",
+          message: "Internal Server Error",
+          status: response.status,
+        };
+      } else {
+        throw err;
       }
     }
   } catch (err) {
     let errorMessage;
-    receivedInfo += "Operation failed: ";
+
     if (typeof err.status !== "undefined") {
       errorMessage = `${err.status} ${err.message}`;
     } else if (err.name === "AbortError") {
@@ -111,20 +95,37 @@ export const uploadImage = async (
     }
     console.log("Error:");
     console.log(errorMessage);
-    // console.log(err);
-    receivedInfo += errorMessage;
+    return { success: false, error: `Operation failed: ${errorMessage}` };
   }
-  console.log(receivedInfo);
-  const chartDataPie = chartFieldsPie.map(
-    (field) => ({
-      rawName: field.rawName,
-      quantity: receivedInfo[field.rawName],
-      name: titleCase(field.rawName.replace("nf_", "").replace("total_", "")),
-    }),
-  );
-  return { receivedImage, receivedInfo: chartDataPie, success };
-  // console.log(chartDataPie);
-  // return { receivedImage, receivedInfo };
+};
+
+export const uploadImage = async (uploadImageInfo, urlRoot, willDownloadImage, timeout) => {
+  let receivedInfo = null;
+  let receivedImage = null;
+
+  if (uploadImageInfo === null) {
+    receivedInfo = "No image attached!";
+    alert(receivedInfo);
+    return { receivedInfo, receivedImage };
+  }
+
+  const result = await postFile({
+    url: `${urlRoot}\\upload`,
+    file: uploadImageInfo,
+    args: { returnImg: willDownloadImage },
+    timeout,
+  });
+
+  if (!result.success) {
+    return { receivedImage: null, receivedInfo: null, success: false };
+  }
+
+  receivedImage = result.responseJson.image;
+  receivedInfo = result.responseJson.info;
+
+  const summary = receivedInfo[0];
+
+  return { receivedImage, receivedInfo: summary, success: true };
 };
 
 export const fadeTo = (animatedValue, toValue, duration, callback) => {
@@ -134,6 +135,13 @@ export const fadeTo = (animatedValue, toValue, duration, callback) => {
     useNativeDriver: false,
   }).start(callback);
 };
+
+// https://github.com/JesperLekland/react-native-svg-charts#piechart
+// eslint-disable-next-line no-bitwise
+export const randomColor = () => (`#${((Math.random() * 0xffffff) << 0).toString(16)}000000`).slice(0, 7);
+
+// https://stackoverflow.com/questions/16449295/how-to-sum-the-values-of-a-javascript-object
+export const sumValues = (obj) => Object.values(obj).reduce((a, b) => a + b);
 
 export const fadeInThenOut = (
   animatedValue,

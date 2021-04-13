@@ -14,10 +14,10 @@ const RectText = ({ pad = 10, children, rectFill, x, y, viewBoxX = 100, viewBoxY
   return (
     <G x={x} y={y}>
       <Rect
-        x={0 - pad / 2}
+        x={0 - (pad / 2)}
         y={typeof (layout?.height) !== "undefined" ? -(layout.height + pad) * scaleY : 0}
-        width={typeof (layout?.width) !== "undefined" ? layout.width * scaleX + pad : 25}
-        height={typeof (layout?.height) !== "undefined" ? layout.height * scaleY + pad : 50}
+        width={typeof (layout?.width) !== "undefined" ? (layout.width * scaleX) + pad : 25}
+        height={typeof (layout?.height) !== "undefined" ? (layout.height * scaleY) + pad : 50}
         fill={rectFill}
       />
       <Text
@@ -29,7 +29,6 @@ const RectText = ({ pad = 10, children, rectFill, x, y, viewBoxX = 100, viewBoxY
           if (newLayout.height === 0 || newLayout === 0) {
             return;
           }
-          console.log(newLayout);
           setLayout(newLayout);
         }}
       >

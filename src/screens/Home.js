@@ -21,6 +21,7 @@ import ViewFlashOnUpdate from "../components/ViewFlashOnUpdate";
 import { styles } from "../styles";
 import { pickImage, takeImage, uploadImage, fadeTo } from "../utils";
 import LoadingScreen from "./Loading";
+import useAsyncStorage from "../useAsyncStorage";
 
 const SHOW_CONFIG = true;
 
@@ -66,7 +67,7 @@ const HomeScreen = (props) => {
   const [receivedImage, setReceivedImage] = useState({ uri: null });
   const [receivedSuccess, setReceivedSuccess] = useState(false);
   // const [receivedInfo, setReceivedInfo] = useState("(No info received yet)");
-  const [receivedInfo, setReceivedInfo] = useState(null);
+  const [receivedInfo, setReceivedInfo] = useAsyncStorage("@receivedInfo", null);
   const [isLoading, setIsLoading] = useState(false);
   const [willDownloadImage, setWillDownloadImage] = useState(false);
   const [showClearModal, setShowClearModal] = useState(false);

@@ -27,8 +27,8 @@ const RectText = ({
         rx={3}
         x={-(layout.width * xOffset[textAnchor]) - pad}
         y={0 - pad}
-        width={layout.width + (pad * 2)}
-        height={layout.height + (pad * 2)}
+        width={layout.width > 0 ? layout.width + (pad * 2) : 0}
+        height={layout.height > 0 ? layout.height + (pad * 2) : 0}
         fill={rectFill}
       />
       <Text
@@ -37,7 +37,6 @@ const RectText = ({
         alignmentBaseline="hanging"
         fill="white"
         fontSize={RFValue(21)}
-        // fontWeight={0}
         stroke="white"
         strokeWidth={0.5}
         onLayout={({ nativeEvent: { layout: newLayout } }) => {

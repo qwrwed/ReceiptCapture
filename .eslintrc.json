@@ -31,6 +31,9 @@
         "no-throw-literal": "off",
         "no-alert": "off",
         "no-console": "off",
-        "no-mixed-operators": [2, {"allowSamePrecedence": true}]
+        "no-mixed-operators": [2, {"allowSamePrecedence": true}],
+        "no-param-reassign": ["error", { "props": false }],
+        "max-len": "off",
+        "no-underscore-dangle": "off"
     }
 }

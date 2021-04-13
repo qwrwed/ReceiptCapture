@@ -136,6 +136,10 @@ export const fadeTo = (animatedValue, toValue, duration, callback) => {
   }).start(callback);
 };
 
+// https://stackoverflow.com/a/38829074
+export const objectMap = (obj, callback) => Object.fromEntries(Object.entries(obj).map(([k, v]) => callback(k, v)));
+// sample case: objectMap(o, (k,v) => [k, v*v])
+
 // https://github.com/JesperLekland/react-native-svg-charts#piechart
 // eslint-disable-next-line no-bitwise
 export const randomColor = () => (`#${((Math.random() * 0xffffff) << 0).toString(16)}000000`).slice(0, 7);

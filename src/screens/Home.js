@@ -13,6 +13,8 @@ import {
   Button,
 } from "react-native-paper";
 
+import { RFValue } from "react-native-responsive-fontsize";
+import Hyperlink from "react-native-hyperlink";
 import AppButton from "../components/AppButton";
 import AppPieChart from "../components/AppPieChart";
 import CodeWithModal from "../components/CodeWithModal";
@@ -41,17 +43,33 @@ const uploadImageInfoTemplate = {
 const pieConfig = {
   nf_protein: {
     label: "Protein",
-    color: "#FF0000",
+    color: "#880000",
   },
   nf_total_carbohydrate: {
     label: "Carbohydrates",
-    color: "#FFFF00",
-
+    color: "#884400",
+  },
+  nf_carbohydrate_non_sugar: {
+    label: "Carbohydrates",
+    color: "#884400",
+    disabled: true,
+  },
+  nf_sugars: {
+    label: "Sugars",
+    color: "#884488",
+    disabled: true,
   },
   nf_total_fat: {
-    label: "Fat",
-    color: "#FFFF00",
+    label: "Fats",
+    color: "#884444",
   },
+};
+
+const rdaData = {
+  // https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/
+  nf_protein: 90,
+  nf_total_carbohydrate: 260,
+  nf_total_fat: 70,
 };
 
 // const sampleData = {
@@ -207,7 +225,22 @@ const HomeScreen = (props) => {
           </ViewFlashOnUpdate>
         </View> */}
         <View style={{ flex: 1 }}>
-          {receivedInfo && <AppPieChart data={receivedInfo} config={pieConfig} />}
+          {receivedInfo && (
+          <AppPieChart
+            dataOuter={receivedInfo}
+            dataInner={rdaData}
+            config={pieConfig}
+          />
+          )}
+          <Hyperlink
+            linkDefault={true}
+            linkStyle={{ color: "#2980b9", textDecorationLine: "underline" }}
+            linkText={(url) => (url === "https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/" ? "Daily Reference Intake" : url)}
+          >
+            <Text style={{ fontSize: RFValue(18) }}>
+              Outer: From Receipt. Inner: https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/.
+            </Text>
+          </Hyperlink>
         </View>
         {/* {receivedSuccess && (
         )} */}

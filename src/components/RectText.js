@@ -4,9 +4,10 @@ import { View, Dimensions } from "react-native";
 import { Props } from "react-native-image-zoom-viewer/built/image-viewer.type";
 import { Text as NativeText } from "react-native-paper";
 import { Svg, Circle, G, Line, Text, Rect } from "react-native-svg";
+import { RFValue } from "react-native-responsive-fontsize";
 
 const RectText = ({
-  pad = 10,
+  pad = 15,
   rectFill = "grey",
   x = 0,
   y = 0,
@@ -31,12 +32,14 @@ const RectText = ({
         fill={rectFill}
       />
       <Text
+        letterSpacing="1.2"
         textAnchor={textAnchor}
         alignmentBaseline="hanging"
         fill="white"
-        fontSize={20}
+        fontSize={RFValue(21)}
+        // fontWeight={0}
         stroke="white"
-        strokeWidth={0}
+        strokeWidth={0.5}
         onLayout={({ nativeEvent: { layout: newLayout } }) => {
           if (newLayout.height === 0 || newLayout === 0) {
             return;

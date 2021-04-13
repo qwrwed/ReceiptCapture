@@ -11,7 +11,7 @@ function useAsyncStorage(key, initialValue) {
     try {
       // Get from local storage by key
       const item = await AsyncStorage.getItem(key);
-      console.log(item);
+      // console.log(item);
       // Parse stored json or if none return initialValue
       const value = item ? JSON.parse(item) : initialValue;
       setStoredValue(value);
@@ -22,7 +22,7 @@ function useAsyncStorage(key, initialValue) {
   }
 
   useEffect(() => {
-    console.log("get value", key, initialValue);
+    // console.log("get value", key, initialValue);
     getStoredItem(key, initialValue);
   }, [key, initialValue]);
 

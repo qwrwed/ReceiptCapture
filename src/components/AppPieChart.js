@@ -3,23 +3,21 @@
 // import { PieChart } from "react-minimal-pie-chart";
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Dimensions } from "react-native";
+import { Text as NativeText } from "react-native-paper";
 import { PieChart as PieChartKit } from "react-native-chart-kit";
 import { PieChart as PieChartSVG } from "react-native-svg-charts";
-import { Circle, G, Line, Text, Rect } from "react-native-svg";
+import { Circle, G, Line, Text, Rect, ForeignObject } from "react-native-svg";
 
 import RectText from "./RectText";
 
 const pressHandler = (data) => {
-  console.log(`You pressed ${data.label}`);
+  console.log(`You pressed ${data.rawName}`);
 };
 
-// https://github.com/JesperLekland/react-native-svg-charts#piechart
-const AppPieChartSVG = ({ data, config }) => {
-  const screenWidth = Dimensions.get("window").width;
-
+const objDataToPieData = (data, config) => {
   const dataList = Object.entries(data)
     .map((entry) => ({ rawName: entry[0], value: entry[1] }))
-    .filter((entry) => entry.rawName in config);
+    .filter((entry) => entry.rawName in config && !config[entry.rawName]?.disabled);
 
   const valueSum = dataList.reduce((acc, item) => acc + item.value, 0);
   const pieData = dataList
@@ -35,10 +33,17 @@ const AppPieChartSVG = ({ data, config }) => {
       },
       key: `pie-${item.rawName}`,
     }));
+  return pieData;
+};
+
+// https://github.com/JesperLekland/react-native-svg-charts#piechart
+const AppPieChartSVG = ({ dataInner, dataOuter, config, children }) => {
+  const screenWidth = Dimensions.get("window").width;
 
   const Labels = ({ slices }) => slices.map((slice, index) => {
     const { labelCentroid, pieCentroid, data: sliceData } = slice;
     const xCoordText = screenWidth * 0.4;
+    const strokeWidth = 2;
     return (
       <G
         key={`label-${sliceData.rawName}`}
@@ -50,6 +55,13 @@ const AppPieChartSVG = ({ data, config }) => {
           x2={labelCentroid[0]}
           y2={labelCentroid[1]}
           stroke={sliceData.svg.fill}
+          strokeWidth={strokeWidth}
+        />
+        <Circle
+          cx={labelCentroid[0]}
+          cy={labelCentroid[1]}
+          r={strokeWidth / 2}
+          fill={sliceData.svg.fill}
         />
         <Line
           x1={labelCentroid[0]}
@@ -57,6 +69,7 @@ const AppPieChartSVG = ({ data, config }) => {
           x2={xCoordText}
           y2={labelCentroid[1]}
           stroke={sliceData.svg.fill}
+          strokeWidth={strokeWidth}
         />
         <G
           // x={labelCentroid[0]}
@@ -73,8 +86,7 @@ const AppPieChartSVG = ({ data, config }) => {
 
   return (
     <PieChartSVG
-      data={pieData}
-      // style={{ height: 200 }}
+      data={objDataToPieData(dataOuter, config)}
       style={{
         flex: 1,
         width: "200%",
@@ -90,6 +102,20 @@ const AppPieChartSVG = ({ data, config }) => {
       sort={() => 0}
     >
       <Labels />
+      <View>
+        <PieChartSVG
+          data={objDataToPieData(dataInner, config)}
+          style={{ flex: 1 }}
+          startAngle={0}
+          endAngle={Math.PI * 1}
+          innerRadius="20%"
+          outerRadius="36%"
+          labelRadius="80%"
+          padAngle={5 * (Math.PI / 180)}
+          sort={() => 0}
+        />
+      </View>
+      {/* <NativeText>this is a sample</NativeText> */}
     </PieChartSVG>
   );
 };

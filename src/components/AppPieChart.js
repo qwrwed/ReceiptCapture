@@ -10,13 +10,13 @@ import { Circle, G, Line, Text, Rect, ForeignObject } from "react-native-svg";
 import { RFValue } from "react-native-responsive-fontsize";
 
 import RectText from "./RectText";
-import { objectMap } from "../utils";
+import { objectMap, sumValues } from "../utils";
 
 const pressHandler = (data) => {
   console.log(`You pressed ${data.rawName}`);
 };
 
-const objDataToPieData = (data, config) => {
+const objDataToPieData = (data, config, scaleArcs) => {
   const dataList = Object.entries(data)
     .map((entry) => ({ rawName: entry[0], value: entry[1] }))
     .filter((entry) => entry.rawName in config && !config[entry.rawName]?.disabled);
@@ -27,19 +27,30 @@ const objDataToPieData = (data, config) => {
     .map((item, index) => ({
       ...item,
       label: config[item.rawName].label,
+      refProportion: config[item.rawName].refProportion,
       proportion: item.value / valueSum,
-      percentage: Math.round(item.value / valueSum * 100),
       svg: {
         fill: config[item.rawName].color,
         onPress: () => { pressHandler(item); },
       },
       key: `pie-${item.rawName}`,
+    }))
+    .map((item, index) => ({
+      ...item,
+      percentage: Math.round(item.proportion * 100),
+      refPercentage: Math.round(item.refProportion * 100),
+    })).map((item, index) => ({
+      ...item,
+      arc: scaleArcs ? { outerRadius: `${item.proportion / config[item.rawName].refProportion * 100}%` } : {},
     }));
+  console.log("pieData");
+  console.log(pieData);
   return pieData;
 };
 
 const AppPieChartBase = ({
   data,
+  scaleArcs,
   config,
   children,
   angles = {},
@@ -54,7 +65,7 @@ const AppPieChartBase = ({
 
   return (
     <PieChartSVG
-      data={objDataToPieData(data, config)}
+      data={objDataToPieData(data, config, scaleArcs)}
       style={{ flex: 1, ...style }}
       startAngle={anglesRad.start}
       endAngle={anglesRad.end}
@@ -72,8 +83,10 @@ const AppPieChartBase = ({
 const LabelsOuter = ({ slices }) => slices.map((slice, index) => {
   const screenWidth = Dimensions.get("window").width;
   const { labelCentroid, pieCentroid, data: sliceData } = slice;
-  const xCoordText = screenWidth * 0.4;
+  const xCoordText = screenWidth * 0.35;
   const strokeWidth = 2;
+  console.log(sliceData);
+  console.log("sliceData");
   return (
     <G
       key={`label-outer-${sliceData.rawName}`}
@@ -113,48 +126,81 @@ const LabelsOuter = ({ slices }) => slices.map((slice, index) => {
     </G>
   );
 });
+// (${sliceData.refPercentage}%)
 
 const LabelsInner = ({ slices, height, width }) => slices.map((slice, index) => {
   const { labelCentroid, pieCentroid, data: sliceData } = slice;
+  const dy = labelCentroid[1] - pieCentroid[1];
+  const dx = labelCentroid[0] - pieCentroid[0];
+  const rotation = Math.atan2(dy, dx) * 180 / Math.PI;
+  const r = 0.0;
+
   return (
-    <Text
+    <G
       key={`label-inner-${sliceData.rawName}`}
-      x={pieCentroid[0]}
-      y={pieCentroid[1]}
-      fill="white"
-      textAnchor="middle"
-      letterSpacing="1.2"
-      alignmentBaseline="middle"
-      fontSize={RFValue(16)}
-      stroke="white"
-      strokeWidth={0.5}
+      x={(pieCentroid[0] * (1 - r)) + (labelCentroid[0] * r)}
+      y={(pieCentroid[1] * (1 - r)) + (labelCentroid[1] * r)}
     >
-      {`${sliceData.percentage}%`}
-    </Text>
+      <Text
+        rotation={rotation}
+        fill="white"
+        textAnchor="middle"
+        letterSpacing="1.2"
+        alignmentBaseline="middle"
+        fontSize={RFValue(16)}
+        stroke="white"
+        strokeWidth={0.5}
+      >
+        {`${sliceData.percentage}%`}
+      </Text>
+    </G>
+
   );
 });
 
 // https://github.com/JesperLekland/react-native-svg-charts#piechart
-const AppPieChartSVG = ({ dataInner, dataOuter, config, children }) => (
+const AppDoublePieChart = ({ dataInner, dataOuter, config, children }) => (
   <AppPieChartBase
     data={dataOuter}
     config={config}
-    style={{
-      width: "200%",
-      left: "-100%",
-      // backgroundColor: "#00F",
-    }}
-    angles={{ start: 0, end: 180, pad: 3 }}
-    radii={{ inner: 0.4, outer: 0.7, label: 0.8 }}
+    style={{ width: "200%", left: "-100%" }}
+    angles={{ start: 0, end: 180, pad: 2 * 3 / 5 }}
+    radii={{ inner: 0.6, outer: 0.8, label: 0.8 }}
   >
     <LabelsOuter />
     <View>
       <AppPieChartBase
         data={dataInner}
         config={config}
-        radii={{ inner: 0.2, outer: 0.36, label: 0.8 }}
-        angles={{ start: 0, end: 180, pad: 5 }}
+        radii={{ inner: 0.3, outer: 0.58, label: 0.8 }}
+        angles={{ start: 0, end: 180, pad: 2 }}
       >
+        <LabelsInner />
+      </AppPieChartBase>
+    </View>
+  </AppPieChartBase>
+);
+
+const unitPie = { _: 1 };
+
+const AppScalePieChart = ({ dataOuter, config, children }) => (
+  <AppPieChartBase
+    style={{ width: "200%", left: "-100%" }}
+    data={unitPie}
+    config={{ _: { label: "_", color: "#FFFFFF" } }}
+    radii={{ inner: 0, outer: 0.7, label: 0.8 }}
+    angles={{ start: 0, end: 180, pad: 0 }}
+
+  >
+    <View>
+      <AppPieChartBase
+        scaleArcs={true}
+        data={dataOuter}
+        config={config}
+        angles={{ start: 0, end: 180, pad: 0 }}
+        radii={{ inner: 0, outer: 0.7, label: 0.8 }}
+      >
+        <LabelsOuter />
         {/* <LabelsInner /> */}
       </AppPieChartBase>
     </View>
@@ -186,7 +232,4 @@ const AppPieChartKit = ({ data: myData }) => {
   );
 };
 
-const AppPieChart = AppPieChartSVG;
-// const AppPieChart = PieChartWithCenteredLabels;
-
-export default AppPieChart;
+export { AppDoublePieChart, AppScalePieChart };

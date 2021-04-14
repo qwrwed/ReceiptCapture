@@ -16,12 +16,12 @@ import {
 import { RFValue } from "react-native-responsive-fontsize";
 import Hyperlink from "react-native-hyperlink";
 import AppButton from "../components/AppButton";
-import AppPieChart from "../components/AppPieChart";
+import { AppDoublePieChart, AppScalePieChart } from "../components/AppPieChart";
 import CodeWithModal from "../components/CodeWithModal";
 import ImageWithModal from "../components/ImageWithModal";
 import ViewFlashOnUpdate from "../components/ViewFlashOnUpdate";
 import { styles } from "../styles";
-import { pickImage, takeImage, uploadImage, fadeTo } from "../utils";
+import { pickImage, takeImage, uploadImage, fadeTo, objectMap, sumValues } from "../utils";
 import LoadingScreen from "./Loading";
 import useAsyncStorage from "../useAsyncStorage";
 
@@ -40,7 +40,14 @@ const uploadImageInfoTemplate = {
   type: null,
 };
 
-const pieConfig = {
+const rdaData = {
+  // https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/
+  nf_protein: 50,
+  nf_total_carbohydrate: 260,
+  nf_total_fat: 70,
+};
+const rdaSum = sumValues(rdaData);
+let pieConfig = {
   nf_protein: {
     label: "Protein",
     color: "#880000",
@@ -65,12 +72,7 @@ const pieConfig = {
   },
 };
 
-const rdaData = {
-  // https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/
-  nf_protein: 90,
-  nf_total_carbohydrate: 260,
-  nf_total_fat: 70,
-};
+pieConfig = objectMap(pieConfig, (k, v) => [k, { ...v, refProportion: k in rdaData ? rdaData[k] / rdaSum : 0 }]);
 
 // const sampleData = {
 //   nf_protein: 54.98,
@@ -226,7 +228,7 @@ const HomeScreen = (props) => {
         </View> */}
         <View style={{ flex: 1 }}>
           {receivedInfo && (
-          <AppPieChart
+          <AppDoublePieChart
             dataOuter={receivedInfo}
             dataInner={rdaData}
             config={pieConfig}
@@ -235,10 +237,10 @@ const HomeScreen = (props) => {
           <Hyperlink
             linkDefault={true}
             linkStyle={{ color: "#2980b9", textDecorationLine: "underline" }}
-            linkText={(url) => (url === "https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/" ? "Daily Reference Intake" : url)}
+            linkText={(url) => (url === "https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/" ? "Reference Intake" : url)}
           >
-            <Text style={{ fontSize: RFValue(18) }}>
-              Outer: From Receipt. Inner: https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/.
+            <Text style={{ fontSize: RFValue(15) }}>
+              Inner Ring: https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/ | Outer Ring: Receipt Intake
             </Text>
           </Hyperlink>
         </View>

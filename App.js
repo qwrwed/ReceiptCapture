@@ -48,7 +48,7 @@ const App = () => {
             component={HomeScreen}
             // component={TestScreen}
             options={{
-              title: "Receipt Capture",
+              title: "Receipt Nutrition",
               headerStyle: {
                 backgroundColor: theme.colors.primary,
               },

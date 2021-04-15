@@ -2,7 +2,7 @@
   "expo": {
     "name": "Receipt Nutrition",
     "slug": "ReceiptCapture",
-    "version": "1.0.1",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./src/assets/adaptive-icon.png",
     "splash": {

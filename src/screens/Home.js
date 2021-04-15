@@ -25,7 +25,7 @@ import { pickImage, takeImage, uploadImage, fadeTo, objectMap, sumValues } from 
 import LoadingScreen from "./Loading";
 import useAsyncStorage from "../useAsyncStorage";
 
-const SHOW_CONFIG = true;
+const SHOW_CONFIG = false;
 
 const DEFAULT_ADDRESS = "https://qrgk-fyp.nw.r.appspot.com/";
 const CUSTOM_ADDRESS = "http://192.168.0.8";
@@ -50,25 +50,28 @@ const rdaSum = sumValues(rdaData);
 let pieConfig = {
   nf_protein: {
     label: "Protein",
-    color: "#880000",
+    // color: "#880000",
+    color: "#168B99",
   },
   nf_total_carbohydrate: {
     label: "Carbohydrates",
-    color: "#884400",
+    // color: "#884400",
+    color: "#CC8B00",
   },
-  nf_carbohydrate_non_sugar: {
-    label: "Carbohydrates",
-    color: "#884400",
-    disabled: true,
-  },
-  nf_sugars: {
-    label: "Sugars",
-    color: "#884488",
-    disabled: true,
-  },
+  // nf_carbohydrate_non_sugar: {
+  //   label: "Carbohydrates (non-sugar)",
+  //   color: "#884400",
+  //   disabled: true,
+  // },
+  // nf_sugars: {
+  //   label: "Sugars",
+  //   color: "#884488",
+  //   disabled: true,
+  // },
   nf_total_fat: {
-    label: "Fats",
-    color: "#884444",
+    label: "Fat",
+    // color: "#884444",
+    color: "#B3217C",
   },
 };
 
@@ -226,23 +229,37 @@ const HomeScreen = (props) => {
             </CodeWithModal>
           </ViewFlashOnUpdate>
         </View> */}
+        {/* <ImageWithModal
+          style={{
+            flex: 1,
+            // width: "50%",
+            backgroundColor: props.theme.colors.surface,
+            borderRadius: props.theme.roundness,
+            // marginRight: 2,
+          }}
+          uri={uploadImageInfo.uri}
+        /> */}
         <View style={{ flex: 1 }}>
           {receivedInfo && (
-          <AppDoublePieChart
-            dataOuter={receivedInfo}
-            dataInner={rdaData}
-            config={pieConfig}
-          />
+          <>
+            <Text style={{ textAlign: "center", paddingTop: 5, fontSize: RFValue(20), fontWeight: "400", textDecorationLine: "underline" }}>Calorie Breakdown</Text>
+            <AppDoublePieChart
+              dataOuter={receivedInfo}
+              dataInner={rdaData}
+              config={pieConfig}
+              // centreText="calories"
+            />
+            <Hyperlink
+              linkDefault={true}
+              linkStyle={{ color: "#2980b9", textDecorationLine: "underline" }}
+              linkText={(url) => (url === "https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/" ? "Reference Intake" : url)}
+            >
+              <Text style={{ fontSize: RFValue(15) }}>
+                Inner Ring: https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/ | Outer Ring: Receipt Intake
+              </Text>
+            </Hyperlink>
+          </>
           )}
-          <Hyperlink
-            linkDefault={true}
-            linkStyle={{ color: "#2980b9", textDecorationLine: "underline" }}
-            linkText={(url) => (url === "https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/" ? "Reference Intake" : url)}
-          >
-            <Text style={{ fontSize: RFValue(15) }}>
-              Inner Ring: https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/ | Outer Ring: Receipt Intake
-            </Text>
-          </Hyperlink>
         </View>
         {/* {receivedSuccess && (
         )} */}

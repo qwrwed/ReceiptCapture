@@ -29,6 +29,7 @@ const objDataToPieData = (data, config, scaleArcs) => {
       label: config[item.rawName].label,
       refProportion: config[item.rawName].refProportion,
       proportion: item.value / valueSum,
+      arc: { cornerRadius: 3 },
       svg: {
         fill: config[item.rawName].color,
         onPress: () => { pressHandler(item); },
@@ -41,10 +42,8 @@ const objDataToPieData = (data, config, scaleArcs) => {
       refPercentage: Math.round(item.refProportion * 100),
     })).map((item, index) => ({
       ...item,
-      arc: scaleArcs ? { outerRadius: `${item.proportion / config[item.rawName].refProportion * 100}%` } : {},
+      arc: scaleArcs ? { ...item.arc, outerRadius: `${item.proportion / config[item.rawName].refProportion * 100}%` } : item.arc,
     }));
-  console.log("pieData");
-  console.log(pieData);
   return pieData;
 };
 
@@ -83,10 +82,8 @@ const AppPieChartBase = ({
 const LabelsOuter = ({ slices }) => slices.map((slice, index) => {
   const screenWidth = Dimensions.get("window").width;
   const { labelCentroid, pieCentroid, data: sliceData } = slice;
-  const xCoordText = screenWidth * 0.35;
+  const xCoordText = screenWidth * 0.4;
   const strokeWidth = 2;
-  console.log(sliceData);
-  console.log("sliceData");
   return (
     <G
       key={`label-outer-${sliceData.rawName}`}
@@ -119,7 +116,11 @@ const LabelsOuter = ({ slices }) => slices.map((slice, index) => {
         x={xCoordText}
         y={labelCentroid[1]}
       >
-        <RectText rectFill={sliceData.svg.fill} textAnchor="start">
+        <RectText
+          fontSize={RFValue(18)}
+          rectFill={sliceData.svg.fill}
+          textAnchor="start"
+        >
           {`${sliceData.percentage}%: ${sliceData.label}`}
         </RectText>
       </G>
@@ -147,7 +148,7 @@ const LabelsInner = ({ slices, height, width }) => slices.map((slice, index) => 
         textAnchor="middle"
         letterSpacing="1.2"
         alignmentBaseline="middle"
-        fontSize={RFValue(16)}
+        fontSize={RFValue(14)}
         stroke="white"
         strokeWidth={0.5}
       >
@@ -159,34 +160,60 @@ const LabelsInner = ({ slices, height, width }) => slices.map((slice, index) => 
 });
 
 // https://github.com/JesperLekland/react-native-svg-charts#piechart
-const AppDoublePieChart = ({ dataInner, dataOuter, config, children }) => (
+const AppDoublePieChart = ({ dataInner, dataOuter, config, children, centreText }) => (
   <AppPieChartBase
     data={dataOuter}
     config={config}
     style={{ width: "200%", left: "-100%" }}
     angles={{ start: 0, end: 180, pad: 2 * 3 / 5 }}
-    radii={{ inner: 0.6, outer: 0.8, label: 0.8 }}
+    radii={{ inner: 0.55, outer: 0.75, label: 0.85 }}
   >
     <LabelsOuter />
     <View>
       <AppPieChartBase
         data={dataInner}
         config={config}
-        radii={{ inner: 0.3, outer: 0.58, label: 0.8 }}
+        radii={{ inner: 0.3, outer: 0.53, label: 0.8 }}
         angles={{ start: 0, end: 180, pad: 2 }}
       >
+        {/* <ForeignObject>
+          <View style={{
+            height: "100%",
+            // justifyContent: "center",
+            // alignContent: "center",
+            // alignItems: "center",
+            // alignSelf: "flex-start",
+            backgroundColor: "#0000fF77",
+          }}
+          >
+            { {children} }
+            <NativeText>native</NativeText>
+          </View>
+
+        </ForeignObject> */}
         <LabelsInner />
+
+        <Text
+          fill="white"
+          textAnchor="start"
+          letterSpacing="1.2"
+          alignmentBaseline="middle"
+          fontSize={RFValue(12)}
+          stroke="white"
+          strokeWidth={0.5}
+        >
+          {centreText}
+        </Text>
+
       </AppPieChartBase>
     </View>
   </AppPieChartBase>
 );
 
-const unitPie = { _: 1 };
-
 const AppScalePieChart = ({ dataOuter, config, children }) => (
   <AppPieChartBase
     style={{ width: "200%", left: "-100%" }}
-    data={unitPie}
+    data={{ _: 1 }}
     config={{ _: { label: "_", color: "#FFFFFF" } }}
     radii={{ inner: 0, outer: 0.7, label: 0.8 }}
     angles={{ start: 0, end: 180, pad: 0 }}

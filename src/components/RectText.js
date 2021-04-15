@@ -7,13 +7,14 @@ import { Svg, Circle, G, Line, Text, Rect } from "react-native-svg";
 import { RFValue } from "react-native-responsive-fontsize";
 
 const RectText = ({
-  pad = 15,
+  pad = 10,
   rectFill = "grey",
   x = 0,
   y = 0,
   textAnchor = "middle",
   children,
   onPress,
+  fontSize = RFValue(20),
 }) => {
   const [layout, setLayout] = useState({ width: 0, height: 0, x: 0, y: 0 });
   const xOffset = {
@@ -36,7 +37,7 @@ const RectText = ({
         textAnchor={textAnchor}
         alignmentBaseline="hanging"
         fill="white"
-        fontSize={RFValue(21)}
+        fontSize={fontSize}
         stroke="white"
         strokeWidth={0.5}
         onLayout={({ nativeEvent: { layout: newLayout } }) => {

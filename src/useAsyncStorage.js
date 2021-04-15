@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-shadow */
 // https://stackoverflow.com/a/63434489
 
 import React, { useState, useEffect } from "react";
@@ -11,7 +13,6 @@ function useAsyncStorage(key, initialValue) {
     try {
       // Get from local storage by key
       const item = await AsyncStorage.getItem(key);
-      // console.log(item);
       // Parse stored json or if none return initialValue
       const value = item ? JSON.parse(item) : initialValue;
       setStoredValue(value);

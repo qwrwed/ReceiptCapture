@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { View, Dimensions } from "react-native";
-import { Props } from "react-native-image-zoom-viewer/built/image-viewer.type";
 import { Text as NativeText } from "react-native-paper";
 import { Svg, Circle, G, Line, Text, Rect } from "react-native-svg";
 import { RFValue } from "react-native-responsive-fontsize";

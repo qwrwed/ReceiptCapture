@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   buttonContent: {
-    height: "100%",
+    height: RFValue(60),
   },
   buttonLabel: {
     fontSize: RFValue(21),

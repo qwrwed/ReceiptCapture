@@ -48,7 +48,7 @@ const AppButton = (props) => {
   return (
     <Button
       style={[styles.button, props.style]}
-      contentStyle={styles.buttonContent}
+      contentStyle={[styles.buttonContent, props.contentStyle]}
       labelStyle={styles.buttonLabel}
       mode={mode}
       color={buttonColor}

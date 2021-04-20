@@ -240,9 +240,24 @@ const HomeScreen = (props) => {
           uri={uploadImageInfo.uri}
         /> */}
         <View style={{ flex: 1 }}>
+          {!receivedInfo && (
+          <View style={{ flex: 1, justifyContent: "center", padding: 10 }}>
+            <Text style={{ fontSize: RFValue(18), textAlign: "center" }}>
+              Upload an image of a receipt to receive a breakdown of the types of calories that make up its contents.
+              When selecting the image, please ensure it is taken from a
+              <Text style={{ fontWeight: "bold" }}> top-down view </Text>
+              (not angled) and
+              <Text style={{ fontWeight: "bold" }}> cropped to only show the grocery items and their individual prices</Text>
+              .
+            </Text>
+          </View>
+          )}
           {receivedInfo && (
           <>
-            <Text style={{ textAlign: "center", paddingTop: 5, fontSize: RFValue(20), fontWeight: "400", textDecorationLine: "underline" }}>Calorie Breakdown</Text>
+            <Text style={{ textAlign: "center", paddingTop: 5, fontSize: RFValue(20), fontWeight: "400", textDecorationLine: "underline" }}>
+              Calorie Breakdown
+              {JSON.stringify(receivedInfo)}
+            </Text>
             <AppDoublePieChart
               dataOuter={receivedInfo}
               dataInner={rdaData}
@@ -372,7 +387,7 @@ const HomeScreen = (props) => {
                   setIsLoading(false);
                 }}
               />
-              <AppButton
+              {/* <AppButton
                 icon={willDownloadImage ? "download" : "download-off"}
                 compact={true}
                 style={{ flex: 1.2, marginLeft: 2 }}
@@ -380,7 +395,7 @@ const HomeScreen = (props) => {
                   setWillDownloadImage(!willDownloadImage);
                 }}
                 disabled={isLoading}
-              />
+              /> */}
             </View>
             <AppButton
               icon="eraser"
@@ -441,10 +456,10 @@ const HomeScreen = (props) => {
                           type: null,
                         });
                         setReceivedImage({ uri: null });
-                        setReceivedInfo("(No info received yet)");
+                        setReceivedInfo(null);
                         setShowClearModal(false);
                         setUploadImageInfo(uploadImageInfoTemplate);
-                        AsyncStorage.setItem("@uploadImageInfo", null);
+                        AsyncStorage.removeItem("@uploadImageInfo");
                       }}
                       color={modalButtonColor}
                     >

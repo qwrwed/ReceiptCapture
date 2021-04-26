@@ -11,6 +11,7 @@ import {
   Modal,
   Portal,
   Button,
+  Snackbar,
 } from "react-native-paper";
 
 import { RFValue } from "react-native-responsive-fontsize";
@@ -96,6 +97,8 @@ const HomeScreen = (props) => {
   const [showClearModal, setShowClearModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [useCustomAddress, setUseCustomAddress] = useState(SHOW_CONFIG);
+  const [isSnackbarVisible, setIsSnackbarVisible] = useState(false);
+  const [snackbarText, setSnackbarText] = useState("");
 
   const [serverAddress, setServerAddress] = useState(null);
   const [timeout, setTimeout] = useState(null);
@@ -360,6 +363,26 @@ const HomeScreen = (props) => {
                 </View>
               </Modal>
             </Portal>
+            <Portal>
+              <Snackbar
+                visible={isSnackbarVisible}
+                onDismiss={() => setIsSnackbarVisible(false)}
+                theme={{
+                  ...props.theme,
+                  colors: {
+                    ...props.theme.colors,
+                    surface: props.theme.colors.text,
+                    accent: modalButtonColor,
+                  },
+                }}
+                action={{
+                  label: "Dismiss",
+                  onPress: () => setIsSnackbarVisible(false),
+                }}
+              >
+                {snackbarText}
+              </Snackbar>
+            </Portal>
             <View style={{ flexDirection: "row" }}>
               <AppButton
                 icon="upload"
@@ -378,6 +401,11 @@ const HomeScreen = (props) => {
                     timeout.num,
                   );
                   setReceivedSuccess(response.success);
+                  console.log(response.success);
+                  if (!response.success) {
+                    setSnackbarText("Failed to extract data from receipt. The receipt format may not be supported.");
+                    setIsSnackbarVisible(true);
+                  }
                   setReceivedInfo(response.receivedInfo);
                   if (willDownloadImage && response.receivedImage !== null) {
                     setReceivedImage({

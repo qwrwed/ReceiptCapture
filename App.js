@@ -18,8 +18,8 @@ import AppStatusBar from "./src/components/AppStatusBar";
 import HomeScreen from "./src/screens/Home";
 import TestScreen from "./src/screens/Test";
 
-const DefaultTheme = merge(PaperDefaultTheme, NavigationDefaultTheme);
-const DarkTheme = merge(PaperDarkTheme, NavigationDarkTheme);
+const DefaultTheme = merge(NavigationDefaultTheme, PaperDefaultTheme);
+const DarkTheme = merge(NavigationDarkTheme, PaperDarkTheme);
 
 const Stack = createStackNavigator();
 
@@ -34,6 +34,7 @@ const App = () => {
       notification: "#0AA",
       primary: "#6200ee",
       surface: "#7773",
+      onSurface: isPreferDark ? "#333" : "#BBB",
       // primary: isPreferDark ? "magenta" : "orange",
     },
   };

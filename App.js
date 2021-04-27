@@ -28,8 +28,8 @@ const DarkTheme = merge(NavigationDarkTheme, PaperDarkTheme);
 const Stack = createStackNavigator();
 
 const App = () => {
-  const [useDarkTheme, setUseDarkTheme] = useAsyncStorage("@useDarkTheme", useColorScheme() === "dark");
-  const themeImported = useDarkTheme ? DarkTheme : DefaultTheme;
+  const [useLightTheme, setUseLightTheme] = useAsyncStorage("@useLightTheme", useColorScheme() !== "dark");
+  const themeImported = useLightTheme ? DefaultTheme : DarkTheme;
 
   const theme = {
     ...themeImported,
@@ -38,7 +38,7 @@ const App = () => {
       notification: "#0AA",
       primary: "#6200ee",
       surface: "#7773",
-      onSurface: useDarkTheme ? "#333" : "#BBB",
+      onSurface: useLightTheme ? "#BBB" : "#333",
       accent: "#FFF",
       // primary: isPreferDark ? "magenta" : "orange",
     },
@@ -70,12 +70,12 @@ const App = () => {
                   alignItems: "center" }}
                 >
                   <Switch
-                    value={!useDarkTheme}
-                    onValueChange={() => setUseDarkTheme(!useDarkTheme)}
+                    value={useLightTheme}
+                    onValueChange={() => setUseLightTheme(!useLightTheme)}
                   />
-                  {useDarkTheme
-                    ? <MaterialCommunityIcons name="moon-waning-crescent" size={24} color="white" />
-                    : <MaterialIcons name="wb-sunny" size={24} color="white" />}
+                  {useLightTheme
+                    ? <MaterialIcons name="wb-sunny" size={24} color="white" />
+                    : <MaterialCommunityIcons name="moon-waning-crescent" size={24} color="white" />}
                   {/* <MaterialCommunityIcons name="theme-light-dark" size={24} color="white" /> */}
 
                 </View>

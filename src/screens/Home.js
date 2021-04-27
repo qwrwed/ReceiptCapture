@@ -419,70 +419,56 @@ const HomeScreen = (props) => {
                 setShowClearModal(true);
               }}
             />
-            <Portal>
-              <Modal
-                visible={showClearModal}
-                onDismiss={() => setShowClearModal(false)}
-                contentContainerStyle={{
-                  backgroundColor: props.theme.colors.background,
-                  width: "85%",
-                  alignSelf: "center",
-                  borderRadius: props.theme.roundness,
+            <AppModal
+              visible={showClearModal}
+              setVisible={setShowClearModal}
+              style={{ width: "85%" }}
+            >
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 20,
+                  fontFamily: "sans-serif-light",
                 }}
               >
-                <View
-                  style={{
-                    backgroundColor: props.theme.colors.surface,
-                    padding: 20,
-                    borderRadius: props.theme.roundness,
-                  }}
+                Clear all?
+              </Text>
+              <Text style={{ fontSize: 16 }}>
+                Are you sure you want to clear all selected and received
+                items?
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Button
+                  onPress={() => setShowClearModal(false)}
+                  color={modalButtonColor}
                 >
-                  <Text
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: 20,
-                      fontFamily: "sans-serif-light",
-                    }}
-                  >
-                    Clear all?
-                  </Text>
-                  <Text style={{ fontSize: 16 }}>
-                    Are you sure you want to clear all selected and received
-                    items?
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <Button
-                      onPress={() => setShowClearModal(false)}
-                      color={modalButtonColor}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onPress={() => {
-                        setUploadImageInfo({
-                          uri: null,
-                          name: null,
-                          type: null,
-                        });
-                        setReceivedImage({ uri: null });
-                        setReceivedInfo(null);
-                        setShowClearModal(false);
-                        setUploadImageInfo(uploadImageInfoTemplate);
-                        AsyncStorage.removeItem("@uploadImageInfo");
-                      }}
-                      color={modalButtonColor}
-                    >
-                      Clear
-                    </Button>
-                  </View>
-                </View>
-              </Modal>
-            </Portal>
+                  Cancel
+                </Button>
+                <Button
+                  onPress={() => {
+                    setUploadImageInfo({
+                      uri: null,
+                      name: null,
+                      type: null,
+                    });
+                    setReceivedImage({ uri: null });
+                    setReceivedInfo(null);
+                    setShowClearModal(false);
+                    setUploadImageInfo(uploadImageInfoTemplate);
+                    AsyncStorage.removeItem("@uploadImageInfo");
+                  }}
+                  color={modalButtonColor}
+                >
+                  Clear
+                </Button>
+              </View>
+
+            </AppModal>
           </View>
           {SHOW_CONFIG && (
           <View style={{ flexDirection: "row" }}>

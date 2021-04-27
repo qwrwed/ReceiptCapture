@@ -27,7 +27,7 @@ import { pickImage, takeImage, uploadImage, fadeTo, objectMap, sumValues } from 
 import LoadingScreen from "./Loading";
 import useAsyncStorage from "../useAsyncStorage";
 
-const SHOW_CONFIG = true;
+const SHOW_CONFIG = false;
 
 const DEFAULT_ADDRESS = "https://qrgk-fyp.nw.r.appspot.com/";
 const CUSTOM_ADDRESS = "http://192.168.0.8";

@@ -274,6 +274,7 @@ const HomeScreen = (props) => {
               linkStyle={{ color: "#2980b9", textDecorationLine: "underline" }}
               linkText={(url) => (url === "https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/" ? "Reference Intake" : url)}
             >
+              <Text style={{ fontSize: RFValue(15) }}>Tap chart for details</Text>
               <Text style={{ fontSize: RFValue(15) }}>
                 Inner Ring: https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/ | Outer Ring: Receipt Intake
               </Text>

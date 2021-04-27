@@ -1,5 +1,4 @@
 import React, { } from "react";
-import { View } from "react-native";
 import { Portal, Modal, withTheme } from "react-native-paper";
 
 const AppModal = ({ visible, setVisible, children, theme, style }) => (
@@ -11,18 +10,12 @@ const AppModal = ({ visible, setVisible, children, theme, style }) => (
         backgroundColor: theme.colors.background,
         alignSelf: "center",
         borderRadius: theme.roundness,
+        padding: 20,
+        // margin: 20,
         ...style,
       }}
     >
-      <View
-        style={{
-          backgroundColor: theme.colors.surface,
-          padding: 20,
-          borderRadius: theme.roundness,
-        }}
-      >
-        {children}
-      </View>
+      {children}
     </Modal>
   </Portal>
 );

@@ -259,7 +259,6 @@ const HomeScreen = (props) => {
           <>
             <Text style={{ textAlign: "center", paddingTop: 5, fontSize: RFValue(20), fontWeight: "400", textDecorationLine: "underline" }}>
               Calorie Breakdown
-              {JSON.stringify(receivedInfo)}
             </Text>
             <AppDoublePieChart
               dataOuter={receivedInfo}

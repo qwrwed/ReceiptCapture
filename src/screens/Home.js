@@ -388,7 +388,6 @@ const HomeScreen = (props) => {
                     timeout.num,
                   );
                   setReceivedSuccess(response.success);
-                  console.log(response.success);
                   if (!response.success) {
                     setSnackbarText("Failed to extract data from receipt. The receipt format may not be supported.");
                     setIsSnackbarVisible(true);

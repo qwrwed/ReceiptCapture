@@ -7,16 +7,20 @@ import {
 import { createStackNavigator } from "@react-navigation/stack";
 import merge from "deepmerge";
 import React from "react";
-import { useColorScheme } from "react-native";
+import { useColorScheme, View } from "react-native";
 import {
   DarkTheme as PaperDarkTheme,
   DefaultTheme as PaperDefaultTheme,
   Provider as PaperProvider,
+  Switch,
+  Text,
 } from "react-native-paper";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 import AppStatusBar from "./src/components/AppStatusBar";
 import HomeScreen from "./src/screens/Home";
 import TestScreen from "./src/screens/Test";
+import useAsyncStorage from "./src/useAsyncStorage";
 
 const DefaultTheme = merge(NavigationDefaultTheme, PaperDefaultTheme);
 const DarkTheme = merge(NavigationDarkTheme, PaperDarkTheme);
@@ -24,8 +28,8 @@ const DarkTheme = merge(NavigationDarkTheme, PaperDarkTheme);
 const Stack = createStackNavigator();
 
 const App = () => {
-  const isPreferDark = useColorScheme() === "dark";
-  const themeImported = isPreferDark ? DarkTheme : DefaultTheme;
+  const [useDarkTheme, setUseDarkTheme] = useAsyncStorage("@useDarkTheme", useColorScheme() === "dark");
+  const themeImported = useDarkTheme ? DarkTheme : DefaultTheme;
 
   const theme = {
     ...themeImported,
@@ -34,7 +38,8 @@ const App = () => {
       notification: "#0AA",
       primary: "#6200ee",
       surface: "#7773",
-      onSurface: isPreferDark ? "#333" : "#BBB",
+      onSurface: useDarkTheme ? "#333" : "#BBB",
+      accent: "#FFF",
       // primary: isPreferDark ? "magenta" : "orange",
     },
   };
@@ -53,10 +58,28 @@ const App = () => {
               headerStyle: {
                 backgroundColor: theme.colors.primary,
               },
-              headerTintColor: "#FFF",
+              headerTintColor: "#EEE",
               headerTitleStyle: {
                 // fontWeight: "bold",
               },
+              headerRight: () => (
+                <View style={{
+                  paddingRight: "10%",
+                  flexDirection: "row",
+                  // backgroundColor: "#FF0",
+                  alignItems: "center" }}
+                >
+                  <Switch
+                    value={!useDarkTheme}
+                    onValueChange={() => setUseDarkTheme(!useDarkTheme)}
+                  />
+                  {useDarkTheme
+                    ? <MaterialCommunityIcons name="moon-waning-crescent" size={24} color="white" />
+                    : <MaterialIcons name="wb-sunny" size={24} color="white" />}
+                  {/* <MaterialCommunityIcons name="theme-light-dark" size={24} color="white" /> */}
+
+                </View>
+              ),
             }}
           />
         </Stack.Navigator>

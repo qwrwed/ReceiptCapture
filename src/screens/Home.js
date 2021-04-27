@@ -17,6 +17,7 @@ import {
 import { RFValue } from "react-native-responsive-fontsize";
 import Hyperlink from "react-native-hyperlink";
 import AppButton from "../components/AppButton";
+import AppModal from "../components/AppModal";
 import { AppDoublePieChart, AppScalePieChart } from "../components/AppPieChart";
 import CodeWithModal from "../components/CodeWithModal";
 import ImageWithModal from "../components/ImageWithModal";
@@ -26,7 +27,7 @@ import { pickImage, takeImage, uploadImage, fadeTo, objectMap, sumValues } from 
 import LoadingScreen from "./Loading";
 import useAsyncStorage from "../useAsyncStorage";
 
-const SHOW_CONFIG = false;
+const SHOW_CONFIG = true;
 
 const DEFAULT_ADDRESS = "https://qrgk-fyp.nw.r.appspot.com/";
 const CUSTOM_ADDRESS = "http://192.168.0.8";
@@ -42,10 +43,12 @@ const uploadImageInfoTemplate = {
 };
 
 const rdaData = {
-  // https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/
-  nf_protein: 50,
-  nf_total_carbohydrate: 260,
-  nf_total_fat: 70,
+  summary: {
+    // https://www.nhs.uk/live-well/eat-well/what-are-reference-intakes-on-food-labels/
+    nf_protein: 50,
+    nf_total_carbohydrate: 260,
+    nf_total_fat: 70,
+  },
 };
 const rdaSum = sumValues(rdaData);
 let pieConfig = {
@@ -304,64 +307,49 @@ const HomeScreen = (props) => {
               title="Add Photo"
               onPress={() => setShowAddModal(true)}
             />
-            <Portal>
-              <Modal
-                visible={showAddModal}
-                contentContainerStyle={{
-                  backgroundColor: props.theme.colors.background,
-                  alignSelf: "center",
-                  borderRadius: props.theme.roundness,
+            <AppModal
+              visible={showAddModal}
+              setVisible={setShowAddModal}
+            >
+              <Button
+                color={modalButtonColor}
+                style={{ alignSelf: "stretch" }}
+                labelStyle={{ fontSize: 16 }}
+                onPress={async () => {
+                  setShowAddModal(false);
+                  const info = await takeImage();
+                  if (info !== null) {
+                    setUploadImageInfo(info);
+                    await AsyncStorage.setItem("@uploadImageInfo", JSON.stringify(info));
+                  }
                 }}
-                onDismiss={() => setShowAddModal(false)}
               >
-                <View
-                  style={{
-                    backgroundColor: props.theme.colors.surface,
-                    padding: 20,
-                    borderRadius: props.theme.roundness,
-                  }}
-                >
-                  <Button
-                    color={modalButtonColor}
-                    style={{ alignSelf: "stretch" }}
-                    labelStyle={{ fontSize: 16 }}
-                    onPress={async () => {
-                      setShowAddModal(false);
-                      const info = await takeImage();
-                      if (info !== null) {
-                        setUploadImageInfo(info);
-                        await AsyncStorage.setItem("@uploadImageInfo", JSON.stringify(info));
-                      }
-                    }}
-                  >
-                    Take Photo
-                  </Button>
-                  <Button
-                    color={modalButtonColor}
-                    style={{ margin: 16, alignSelf: "stretch" }}
-                    labelStyle={{ fontSize: 16 }}
-                    onPress={async () => {
-                      setShowAddModal(false);
-                      const info = await pickImage();
-                      if (info !== null) {
-                        setUploadImageInfo(info);
-                        await AsyncStorage.setItem("@uploadImageInfo", JSON.stringify(info));
-                      }
-                    }}
-                  >
-                    Select Photo
-                  </Button>
-                  <Button
-                    color={modalButtonColor}
-                    style={{ alignSelf: "stretch" }}
-                    labelStyle={{ fontSize: 16 }}
-                    onPress={() => setShowAddModal(false)}
-                  >
-                    Cancel
-                  </Button>
-                </View>
-              </Modal>
-            </Portal>
+                Take Photo
+              </Button>
+              <Button
+                color={modalButtonColor}
+                style={{ margin: 16, alignSelf: "stretch" }}
+                labelStyle={{ fontSize: 16 }}
+                onPress={async () => {
+                  setShowAddModal(false);
+                  const info = await pickImage();
+                  if (info !== null) {
+                    setUploadImageInfo(info);
+                    await AsyncStorage.setItem("@uploadImageInfo", JSON.stringify(info));
+                  }
+                }}
+              >
+                Select Photo
+              </Button>
+              <Button
+                color={modalButtonColor}
+                style={{ alignSelf: "stretch" }}
+                labelStyle={{ fontSize: 16 }}
+                onPress={() => setShowAddModal(false)}
+              >
+                Cancel
+              </Button>
+            </AppModal>
             <Portal>
               <Snackbar
                 visible={isSnackbarVisible}

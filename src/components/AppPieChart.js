@@ -3,21 +3,18 @@
 // import { PieChart } from "react-minimal-pie-chart";
 import React, { useState, useEffect, useCallback } from "react";
 import { View, Dimensions } from "react-native";
-import { Text as NativeText } from "react-native-paper";
+import { Text as NativeText, Modal, Portal } from "react-native-paper";
 import { PieChart as PieChartKit } from "react-native-chart-kit";
 import { PieChart as PieChartSVG } from "react-native-svg-charts";
 import { Circle, G, Line, Text, Rect, ForeignObject } from "react-native-svg";
 import { RFValue } from "react-native-responsive-fontsize";
 
 import RectText from "./RectText";
+import AppModal from "./AppModal";
 import { objectMap, sumValues } from "../utils";
 
-const pressHandler = (data) => {
-  console.log(`You pressed ${data.rawName}`);
-};
-
-const objDataToPieData = (data, config, scaleArcs) => {
-  const dataList = Object.entries(data)
+const objDataToPieData = (data, config, scaleArcs, pressHandler) => {
+  const dataList = Object.entries(data.summary)
     .map((entry) => ({ rawName: entry[0], value: entry[1] }))
     .filter((entry) => entry.rawName in config && !config[entry.rawName]?.disabled);
 
@@ -32,7 +29,7 @@ const objDataToPieData = (data, config, scaleArcs) => {
       arc: { cornerRadius: 3 },
       svg: {
         fill: config[item.rawName].color,
-        onPress: () => { pressHandler(item); },
+        onPress: () => { pressHandler(item, data); },
       },
       key: `pie-${item.rawName}`,
     }))
@@ -56,6 +53,7 @@ const AppPieChartBase = ({
   radii = {},
   style = {},
   sort = () => 0,
+  pressHandler = () => {},
 }) => {
   const _angles = { start: 0, end: 360, pad: 0, ...angles };
   const _radii = { inner: 0, outer: 0.8, label: 1, ...radii };
@@ -64,7 +62,7 @@ const AppPieChartBase = ({
 
   return (
     <PieChartSVG
-      data={objDataToPieData(data, config, scaleArcs)}
+      data={objDataToPieData(data, config, scaleArcs, pressHandler)}
       style={{ flex: 1, ...style }}
       startAngle={anglesRad.start}
       endAngle={anglesRad.end}
@@ -79,15 +77,16 @@ const AppPieChartBase = ({
   );
 };
 
-const LabelsOuter = ({ slices }) => slices.map((slice, index) => {
+const LabelsOuter = ({ slices, myData, pressHandler }) => slices.map((slice, index) => {
   const screenWidth = Dimensions.get("window").width;
   const { labelCentroid, pieCentroid, data: sliceData } = slice;
   const xCoordText = screenWidth * 0.4;
   const strokeWidth = 2;
+
   return (
     <G
       key={`label-outer-${sliceData.rawName}`}
-      onPress={() => { pressHandler(sliceData); }}
+      onPress={() => { pressHandler(sliceData, myData); }}
     >
       <Line
         x1={pieCentroid[0]}
@@ -127,7 +126,6 @@ const LabelsOuter = ({ slices }) => slices.map((slice, index) => {
     </G>
   );
 });
-// (${sliceData.refPercentage}%)
 
 const LabelsInner = ({ slices, height, width }) => slices.map((slice, index) => {
   const { labelCentroid, pieCentroid, data: sliceData } = slice;
@@ -160,23 +158,47 @@ const LabelsInner = ({ slices, height, width }) => slices.map((slice, index) => 
 });
 
 // https://github.com/JesperLekland/react-native-svg-charts#piechart
-const AppDoublePieChart = ({ dataInner, dataOuter, config, children, centreText }) => (
-  <AppPieChartBase
-    data={dataOuter}
-    config={config}
-    style={{ width: "200%", left: "-100%" }}
-    angles={{ start: 0, end: 180, pad: 2 * 3 / 5 }}
-    radii={{ inner: 0.55, outer: 0.75, label: 0.85 }}
-  >
-    <LabelsOuter />
-    <View>
-      <AppPieChartBase
-        data={dataInner}
-        config={config}
-        radii={{ inner: 0.3, outer: 0.53, label: 0.8 }}
-        angles={{ start: 0, end: 180, pad: 2 }}
+const AppDoublePieChart = ({ dataInner, dataOuter, config, children, centreText }) => {
+  const [showInfoModal, setShowInfoModal] = useState(false);
+
+  const pressHandler = (slice, data) => {
+    console.log("\n\n\n");
+    console.log(`You pressed ${slice.rawName}`);
+    // console.log(slice);
+    // console.log(data.list);
+    setShowInfoModal(true);
+  };
+
+  return (
+    <>
+
+      {/* <AppModal
+        visible={showInfoModal}
+        setVisible={setShowInfoModal}
       >
-        {/* <ForeignObject>
+        <NativeText>Sample Text</NativeText>
+      </AppModal> */}
+
+      <AppPieChartBase
+        data={{ summary: dataOuter.summary, list: dataOuter.list }}
+        config={config}
+        pressHandler={pressHandler}
+        style={{ width: "200%", left: "-100%" }}
+        angles={{ start: 0, end: 180, pad: 2 * 3 / 5 }}
+        radii={{ inner: 0.55, outer: 0.75, label: 0.85 }}
+      >
+        <LabelsOuter // extraProps: width, height, data, slices
+          myData={{ summary: dataOuter.summary, list: dataOuter.list }}
+          pressHandler={pressHandler}
+        />
+        <View>
+          <AppPieChartBase
+            data={{ summary: dataInner.summary, list: dataOuter.list }}
+            config={config}
+            radii={{ inner: 0.3, outer: 0.53, label: 0.8 }}
+            angles={{ start: 0, end: 180, pad: 2 }}
+          >
+            {/* <ForeignObject>
           <View style={{
             height: "100%",
             // justifyContent: "center",
@@ -191,24 +213,26 @@ const AppDoublePieChart = ({ dataInner, dataOuter, config, children, centreText 
           </View>
 
         </ForeignObject> */}
-        <LabelsInner />
+            <LabelsInner />
 
-        <Text
-          fill="white"
-          textAnchor="start"
-          letterSpacing="1.2"
-          alignmentBaseline="middle"
-          fontSize={RFValue(12)}
-          stroke="white"
-          strokeWidth={0.5}
-        >
-          {centreText}
-        </Text>
+            <Text
+              fill="white"
+              textAnchor="start"
+              letterSpacing="1.2"
+              alignmentBaseline="middle"
+              fontSize={RFValue(12)}
+              stroke="white"
+              strokeWidth={0.5}
+            >
+              {centreText}
+            </Text>
 
+          </AppPieChartBase>
+        </View>
       </AppPieChartBase>
-    </View>
-  </AppPieChartBase>
-);
+    </>
+  );
+};
 
 const AppScalePieChart = ({ dataOuter, config, children }) => (
   <AppPieChartBase

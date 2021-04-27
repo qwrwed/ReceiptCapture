@@ -123,9 +123,7 @@ export const uploadImage = async (uploadImageInfo, urlRoot, willDownloadImage, t
   receivedImage = result.responseJson.image;
   receivedInfo = result.responseJson.info;
 
-  const summary = receivedInfo[0];
-
-  return { receivedImage, receivedInfo: summary, success: true };
+  return { receivedImage, receivedInfo, success: true };
 };
 
 export const fadeTo = (animatedValue, toValue, duration, callback) => {

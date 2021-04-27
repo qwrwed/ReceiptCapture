@@ -1,17 +1,19 @@
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 // import { PieChart } from "react-minimal-pie-chart";
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Dimensions } from "react-native";
-import { Text as NativeText, Modal, Portal } from "react-native-paper";
+import { View, Dimensions, ScrollView, Image } from "react-native";
+import { Text as NativeText, Modal, Portal, DataTable } from "react-native-paper";
 import { PieChart as PieChartKit } from "react-native-chart-kit";
 import { PieChart as PieChartSVG } from "react-native-svg-charts";
 import { Circle, G, Line, Text, Rect, ForeignObject } from "react-native-svg";
 import { RFValue } from "react-native-responsive-fontsize";
+import color from "color";
 
 import RectText from "./RectText";
 import AppModal from "./AppModal";
-import { objectMap, sumValues } from "../utils";
+import { objectMap, sumValues, titleCase } from "../utils";
 
 const objDataToPieData = (data, config, scaleArcs, pressHandler) => {
   const dataList = Object.entries(data.summary)
@@ -158,9 +160,9 @@ const LabelsInner = ({ slices, height, width }) => slices.map((slice, index) => 
 });
 
 // https://github.com/JesperLekland/react-native-svg-charts#piechart
-const AppDoublePieChart = ({ dataInner, dataOuter, config, children, centreText }) => {
+const AppDoublePieChart = ({ dataOuter, dataInner, config, children, centreText }) => {
   const [showInfoModal, setShowInfoModal] = useState(false);
-
+  console.log(config);
   const pressHandler = (slice, data) => {
     console.log("\n\n\n");
     console.log(`You pressed ${slice.rawName}`);
@@ -169,15 +171,90 @@ const AppDoublePieChart = ({ dataInner, dataOuter, config, children, centreText 
     setShowInfoModal(true);
   };
 
+  const imgWidth = 50;
+  const columnStyles = objectMap(config, (k, v) => [k, {
+    flex: v.label.length + 5,
+    backgroundColor: color(v.color).alpha(0.5).string(),
+    padding: 5,
+  }]);
+  const imgStyle = {
+    flex: 0,
+    width: imgWidth,
+  };
+  const nameStyle = {
+    width: "30%",
+    padding: 5,
+    flex: 0,
+
+  };
+
   return (
     <>
-
-      {/* <AppModal
+      <AppModal
         visible={showInfoModal}
         setVisible={setShowInfoModal}
+        style={{ width: "95%", padding: 0 }}
       >
-        <NativeText>Sample Text</NativeText>
-      </AppModal> */}
+        <ScrollView>
+          <DataTable>
+            <DataTable.Header>
+              <DataTable.Title style={imgStyle} />
+              <DataTable.Title style={nameStyle}>Name</DataTable.Title>
+              {Object.keys(config).map((field) => (
+                <DataTable.Title
+                  numeric
+                  key={field}
+                  style={columnStyles[field]}
+                >
+                  {config[field].label}
+                </DataTable.Title>
+              ))}
+            </DataTable.Header>
+            {dataOuter.list.map((item, index) => (
+              <DataTable.Row key={index}>
+                <DataTable.Cell style={{ flex: 0 }}>
+                  <View><Image
+                    style={{
+                      width: imgWidth,
+                      height: imgWidth,
+                      resizeMode: "contain",
+                      backgroundColor: "#FFF",
+                    }}
+                    source={{ uri: item.photo.thumb }}
+                  />
+                  </View>
+                </DataTable.Cell>
+                <DataTable.Cell style={nameStyle}>
+                  {titleCase(item.food_name)}
+                </DataTable.Cell>
+                {Object.keys(config).map((field) => (
+                  <DataTable.Cell
+                    key={field}
+                    numeric
+                    style={columnStyles[field]}
+                  >
+                    {Math.round(item[field])} g
+                  </DataTable.Cell>
+                ))}
+              </DataTable.Row>
+            ))}
+            <DataTable.Row>
+              <DataTable.Cell style={imgStyle} />
+              <DataTable.Cell style={nameStyle}>Total</DataTable.Cell>
+              {Object.keys(config).map((field) => (
+                <DataTable.Cell
+                  key={field}
+                  numeric
+                  style={columnStyles[field]}
+                >
+                  {Math.round(dataOuter.summary[field])} g
+                </DataTable.Cell>
+              ))}
+            </DataTable.Row>
+          </DataTable>
+        </ScrollView>
+
+      </AppModal>
 
       <AppPieChartBase
         data={{ summary: dataOuter.summary, list: dataOuter.list }}

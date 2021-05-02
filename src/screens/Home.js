@@ -27,12 +27,12 @@ import { pickImage, takeImage, uploadImage, fadeTo, objectMap, sumValues } from 
 import LoadingScreen from "./Loading";
 import useAsyncStorage from "../useAsyncStorage";
 
-const SHOW_CONFIG = false;
+const SHOW_CONFIG = true;
 
 const DEFAULT_ADDRESS = "https://qrgk-fyp.nw.r.appspot.com/";
 const CUSTOM_ADDRESS = "http://192.168.0.8";
 const CUSTOM_PORT = "5000";
-const CONNECTION_TIMEOUT = 30;
+const CONNECTION_TIMEOUT = 60;
 
 const CUSTOM_ADDRESS_FULL = CUSTOM_ADDRESS + (CUSTOM_PORT ? `:${CUSTOM_PORT}` : "");
 
@@ -305,7 +305,7 @@ const HomeScreen = (props) => {
           <View>
             <AppButton
               icon="camera-image"
-              title="Add Photo"
+              title={uploadImageInfo.uri ? "Replace Photo" : "Add Photo"}
               onPress={() => setShowAddModal(true)}
             />
             <AppModal

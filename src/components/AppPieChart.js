@@ -162,7 +162,7 @@ const LabelsInner = ({ slices, height, width }) => slices.map((slice, index) => 
 // https://github.com/JesperLekland/react-native-svg-charts#piechart
 const AppDoublePieChart = ({ dataOuter, dataInner, config, children, centreText }) => {
   const [showInfoModal, setShowInfoModal] = useState(false);
-  console.log(config);
+  // console.log(config);
   const pressHandler = (slice, data) => {
     console.log("\n\n\n");
     console.log(`You pressed ${slice.rawName}`);

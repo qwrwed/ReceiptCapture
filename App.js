@@ -39,7 +39,7 @@ const App = () => {
       primary: "#6200ee",
       surface: "#7773",
       onSurface: useLightTheme ? "#BBB" : "#333",
-      accent: "#FFF",
+      textAccent: useLightTheme ? "#099" : "#0FF",
       // primary: isPreferDark ? "magenta" : "orange",
     },
   };

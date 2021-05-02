@@ -56,10 +56,12 @@ const postFile = async ({ url, file, args, timeout = 20 }) => {
       },
       signal: controller.signal,
     });
+
     if (response.ok) {
       const responseJson = await response.json();
       return { success: true, responseJson };
     } // else:
+
     const text = await response.text();
     try {
       const json = await JSON.parse(text);
@@ -84,10 +86,12 @@ const postFile = async ({ url, file, args, timeout = 20 }) => {
     if (typeof err.status !== "undefined") {
       errorMessage = `${err.status} ${err.message}`;
     } else if (err.name === "AbortError") {
-      errorMessage = `No response from server within ${timeout} second`;
-      if (timeout !== 1) {
-        errorMessage += "s";
-      }
+      errorMessage = "Could not connect to server within time limit";
+      // errorMessage += `(${timeout} second`;
+      // if (timeout !== 1) {
+      //   errorMessage += "s";
+      // }
+      // errorMessage += ")";
     } else if (err.message === "Network request failed") {
       errorMessage = "Could not connect to server";
     } else {
@@ -95,13 +99,14 @@ const postFile = async ({ url, file, args, timeout = 20 }) => {
     }
     console.log("Error:");
     console.log(errorMessage);
-    return { success: false, error: `Operation failed: ${errorMessage}` };
+    return { success: false, errorMessage };
   }
 };
 
 export const uploadImage = async (uploadImageInfo, urlRoot, willDownloadImage, timeout) => {
   let receivedInfo = null;
   let receivedImage = null;
+  let errorMessage = null;
 
   if (uploadImageInfo === null) {
     receivedInfo = "No image attached!";
@@ -116,14 +121,18 @@ export const uploadImage = async (uploadImageInfo, urlRoot, willDownloadImage, t
     timeout,
   });
 
-  if (!result.success) {
-    return { receivedImage: null, receivedInfo: null, success: false };
+  const { success } = result;
+
+  if (success) {
+    receivedImage = result.responseJson.image;
+    receivedInfo = result.responseJson.info;
+  } else {
+    errorMessage = result.errorMessage;
+    if (errorMessage === "500 Internal Server Error") {
+      errorMessage = "Failed to extract data from receipt. The receipt format may not be supported.";
+    }
   }
-
-  receivedImage = result.responseJson.image;
-  receivedInfo = result.responseJson.info;
-
-  return { receivedImage, receivedInfo, success: true };
+  return { receivedImage, receivedInfo, success, errorMessage };
 };
 
 export const fadeTo = (animatedValue, toValue, duration, callback) => {

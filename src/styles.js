@@ -26,6 +26,17 @@ const styles = StyleSheet.create({
   text: {
     fontSize: RFValue(20),
   },
+  textTitle: {
+    textAlign: "center",
+    paddingTop: 5,
+    fontSize: RFValue(20),
+    fontWeight: "400",
+    textDecorationLine: "underline",
+  },
+  textInfo: {
+    fontSize: RFValue(18),
+    textAlign: "center",
+  },
   textMono: {
     fontSize: RFValue(18),
     // textAlign: 'center',

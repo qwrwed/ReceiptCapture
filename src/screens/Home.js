@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-unused-vars */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useHeaderHeight } from "@react-navigation/stack";
@@ -16,6 +17,7 @@ import {
 
 import { RFValue } from "react-native-responsive-fontsize";
 import Hyperlink from "react-native-hyperlink";
+import { useTheme } from "@react-navigation/native";
 import AppButton from "../components/AppButton";
 import AppModal from "../components/AppModal";
 import { AppDoublePieChart, AppScalePieChart } from "../components/AppPieChart";
@@ -27,12 +29,12 @@ import { pickImage, takeImage, uploadImage, fadeTo, objectMap, sumValues } from 
 import LoadingScreen from "./Loading";
 import useAsyncStorage from "../useAsyncStorage";
 
-const SHOW_CONFIG = true;
+const SHOW_CONFIG = false;
 
 const DEFAULT_ADDRESS = "https://qrgk-fyp.nw.r.appspot.com/";
 const CUSTOM_ADDRESS = "http://192.168.0.8";
 const CUSTOM_PORT = "5000";
-const CONNECTION_TIMEOUT = 60;
+const CONNECTION_TIMEOUT = 30;
 
 const CUSTOM_ADDRESS_FULL = CUSTOM_ADDRESS + (CUSTOM_PORT ? `:${CUSTOM_PORT}` : "");
 
@@ -86,6 +88,22 @@ pieConfig = objectMap(pieConfig, (k, v) => [k, { ...v, refProportion: k in rdaDa
 //   nf_total_carbohydrate: 130.53,
 //   nf_total_fat: 41.37,
 // };
+
+const TextBold = ({ children, style, ...restProps }) => {
+  const theme = useTheme();
+  return (
+    <Text
+      {...restProps}
+      style={{
+        ...style,
+        fontWeight: "bold",
+        color: theme.colors.textAccent,
+      }}
+    >
+      {children}
+    </Text>
+  );
+};
 
 const HomeScreen = (props) => {
   const { theme } = props;
@@ -247,22 +265,26 @@ const HomeScreen = (props) => {
         /> */}
         <View style={{ flex: 1 }}>
           {!receivedInfo && (
-          <View style={{ flex: 1, justifyContent: "center", padding: 10 }}>
-            <Text style={{ fontSize: RFValue(18), textAlign: "center" }}>
+          <View style={{ flex: 1, justifyContent: "center", paddingHorizontal: 10 }}>
+            <Text style={styles.textTitle}>Instructions</Text>
+            <Text style={styles.textInfo}>
               Upload an image of a receipt to receive a breakdown of the types of calories that make up its contents.
               When selecting the image, please ensure it is taken from a
-              <Text style={{ fontWeight: "bold" }}> top-down view </Text>
+              <TextBold> top-down view </TextBold>
               (not angled) and
-              <Text style={{ fontWeight: "bold" }}> cropped to only show the grocery items and their individual prices</Text>
+              <TextBold> cropped to only show the individual grocery items and their prices</TextBold>
               .
+            </Text>
+            <Text style={styles.textInfo}>
+              Press <TextBold>CROP </TextBold>
+              in the top-right corner of the editor
+              once you have finished cropping the image.
             </Text>
           </View>
           )}
           {receivedInfo && (
           <>
-            <Text style={{ textAlign: "center", paddingTop: 5, fontSize: RFValue(20), fontWeight: "400", textDecorationLine: "underline" }}>
-              Calorie Breakdown
-            </Text>
+            <Text style={styles.textTitle}>Calorie Breakdown</Text>
             <AppDoublePieChart
               dataOuter={receivedInfo}
               dataInner={rdaData}
@@ -390,7 +412,7 @@ const HomeScreen = (props) => {
                   );
                   setReceivedSuccess(response.success);
                   if (!response.success) {
-                    setSnackbarText("Failed to extract data from receipt. The receipt format may not be supported.");
+                    setSnackbarText(response.errorMessage);
                     setIsSnackbarVisible(true);
                   }
                   setReceivedInfo(response.receivedInfo);

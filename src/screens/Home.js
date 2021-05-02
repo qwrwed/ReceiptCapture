@@ -279,7 +279,8 @@ const HomeScreen = (props) => {
           <View style={{ flex: 1, justifyContent: "center", paddingHorizontal: 10 }}>
             <Text style={styles.textTitle}>Instructions</Text>
             <Text style={styles.textInfo}>
-              Upload an image of a receipt to receive a breakdown of the types of calories that make up its contents.
+              Select <TextBold>Photo Options</TextBold> to
+              upload an image of a receipt to receive a breakdown of the types of calories that make up its contents.
               When selecting the image, please ensure it is taken from a
               <TextBold> top-down view </TextBold>
               (not angled) and

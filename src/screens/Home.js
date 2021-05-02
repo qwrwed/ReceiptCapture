@@ -2,6 +2,7 @@
 /* eslint-disable no-unused-vars */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useHeaderHeight } from "@react-navigation/stack";
+import * as MediaLibrary from "expo-media-library";
 import color from "color";
 import React, { useEffect, useState, useRef } from "react";
 import { View, ScrollView, Dimensions, Animated } from "react-native";
@@ -105,6 +106,19 @@ const TextBold = ({ children, style, ...restProps }) => {
   );
 };
 
+const OptionsModalButton = ({ theme, children, onPress, ...restProps }) => (
+  <Button
+    mode="text"
+    color={theme.colors.modalButton}
+    style={{ margin: 8, alignSelf: "stretch" }}
+    labelStyle={{ fontSize: 16 }}
+    onPress={onPress}
+    disabled={restProps.disabled}
+  >
+    {children}
+  </Button>
+);
+
 const HomeScreen = (props) => {
   const { theme } = props;
 
@@ -173,10 +187,7 @@ const HomeScreen = (props) => {
     outputRange: [0, 4],
   });
 
-  let modalButtonColor = theme.colors.primary;
-  modalButtonColor = theme.dark
-    ? color(modalButtonColor).lighten(0.7).string()
-    : modalButtonColor;
+  const modalButtonColor = theme.colors.modalButton;
 
   if (SHOW_CONFIG && (timeout === null || serverAddress === null)) {
     return <LoadingScreen />;
@@ -327,17 +338,16 @@ const HomeScreen = (props) => {
           <View>
             <AppButton
               icon="camera-image"
-              title={uploadImageInfo.uri ? "Replace Photo" : "Add Photo"}
+              // title={uploadImageInfo.uri ? "Replace Photo" : "Add Photo"}
+              title="Photo Options"
               onPress={() => setShowAddModal(true)}
             />
             <AppModal
               visible={showAddModal}
               setVisible={setShowAddModal}
             >
-              <Button
-                color={modalButtonColor}
-                style={{ alignSelf: "stretch" }}
-                labelStyle={{ fontSize: 16 }}
+              <OptionsModalButton
+                theme={theme}
                 onPress={async () => {
                   setShowAddModal(false);
                   const info = await takeImage();
@@ -348,11 +358,9 @@ const HomeScreen = (props) => {
                 }}
               >
                 Take Photo
-              </Button>
-              <Button
-                color={modalButtonColor}
-                style={{ margin: 16, alignSelf: "stretch" }}
-                labelStyle={{ fontSize: 16 }}
+              </OptionsModalButton>
+              <OptionsModalButton
+                theme={theme}
                 onPress={async () => {
                   setShowAddModal(false);
                   const info = await pickImage();
@@ -363,20 +371,33 @@ const HomeScreen = (props) => {
                 }}
               >
                 Select Photo
-              </Button>
-              <Button
-                color={modalButtonColor}
-                style={{ alignSelf: "stretch" }}
-                labelStyle={{ fontSize: 16 }}
+              </OptionsModalButton>
+              <OptionsModalButton
+                theme={theme}
+                onPress={() => {
+                  setShowAddModal(false);
+                  MediaLibrary.saveToLibraryAsync(uploadImageInfo.uri);
+                  setSnackbarText("Image saved to DCIM");
+                  setIsSnackbarVisible(true);
+                }}
+                disabled={uploadImageInfo.uri === null}
+              >
+                Save Photo
+              </OptionsModalButton>
+              <OptionsModalButton
+                theme={theme}
                 onPress={() => setShowAddModal(false)}
               >
                 Cancel
-              </Button>
+              </OptionsModalButton>
             </AppModal>
             <Portal>
               <Snackbar
                 visible={isSnackbarVisible}
-                onDismiss={() => setIsSnackbarVisible(false)}
+                onDismiss={() => {
+                  setIsSnackbarVisible(false);
+                  setSnackbarText("");
+                }}
                 theme={{
                   ...props.theme,
                   colors: {

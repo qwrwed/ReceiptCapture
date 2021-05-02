@@ -5,6 +5,7 @@ import {
   DefaultTheme as NavigationDefaultTheme,
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import color from "color";
 import merge from "deepmerge";
 import React from "react";
 import { useColorScheme, View } from "react-native";
@@ -43,6 +44,7 @@ const App = () => {
       // primary: isPreferDark ? "magenta" : "orange",
     },
   };
+  theme.colors.modalButton = useLightTheme ? theme.colors.primary : color(theme.colors.primary).lighten(0.7).string();
 
   return (
     <PaperProvider theme={theme}>
